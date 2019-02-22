@@ -39,10 +39,10 @@ function POMDPs.initialstate(mdp::DrivingMDP, rng::AbstractRNG)
     mdp.models[2] = AutomotivePOMDPs.EgoDriver(LatLonAccel(0.0, 0.0))
     mdp.models[3] = AutomotivePOMDPs.EgoDriver(LatLonAccel(0.0, 0.0))
 
-    state2 = VehicleState(Frenet(roadway[LaneTag(1,2)],0.0), mdp.roadway, 0.0)
+    state2 = VehicleState(Frenet(mdp.roadway[LaneTag(1,2)],0.0), mdp.roadway, 0.0)
     veh2 = Entity(state2, def, 2)
 
-    state3 = VehicleState(Frenet(roadway[LaneTag(1,2)],10.0), mdp.roadway, 0.0)
+    state3 = VehicleState(Frenet(mdp.roadway[LaneTag(1,2)],10.0), mdp.roadway, 0.0)
     veh3 = Entity(state3, def, 3)
 
     push!(scene, veh1)
