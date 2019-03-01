@@ -1,4 +1,5 @@
 include("../AutomotiveHRLSceneDecomp.jl")
+# using AutomotiveHRLSceneDecomp
 
 # state = ego vehicle state, action = tuple(long acceleration, steering)
 @with_kw struct DrivingMDP <: MDP{Scene, LatLonAccel} # MDP{State, Action}
@@ -11,7 +12,7 @@ include("../AutomotiveHRLSceneDecomp.jl")
     ego_id::Int64 = 1
     timestep::Float64 = 0.1
     n_cars::Int64 = 3
-    carcolors::Dict{Int,Colorant} = Dict()
+    # carcolors::Dict{Int,Colorant} = Dict()
     models::Dict{Int, DriverModel} = Dict()
     goal_pos::Frenet = Frenet(roadway[LaneTag(1,2)], road_length)
     speed_limit::Float64 = 27.0
@@ -19,8 +20,12 @@ end
 
 const LAT_LON_ACTIONS = [LatLonAccel(y, x) for x in -2:1.0:2 for y in -1:0.1:1]
 
+# function POMDPs.actions(mdp::DrivingMDP)
+#     return [LatLonAccel(y, x) for x in -2:1.0:2 for y in -1:0.1:1]
+# end
+
 function POMDPs.actions(mdp::DrivingMDP)
-    return [LatLonAccel(y, x) for x in -2:1.0:2 for y in -1:0.1:1]
+    return LAT_LON_ACTIONS
 end
 
 POMDPs.n_actions(mdp::DrivingMDP) = length(LAT_LON_ACTIONS)
@@ -31,9 +36,9 @@ function POMDPs.initialstate(mdp::DrivingMDP, rng::AbstractRNG)
     state1 = VehicleState(Frenet(mdp.roadway[LaneTag(1,1)],0.0), mdp.roadway, 10.0)
     veh1 = Entity(state1, def, mdp.ego_id)
 
-    mdp.carcolors[1] = colorant"red"
-    mdp.carcolors[2] = colorant"green"
-    mdp.carcolors[3] = colorant"green"
+    # mdp.carcolors[1] = colorant"red"
+    # mdp.carcolors[2] = colorant"green"
+    # mdp.carcolors[3] = colorant"green"
 
     mdp.models[1] = AutomotivePOMDPs.EgoDriver(LatLonAccel(0.0, 0.0))
     mdp.models[2] = AutomotivePOMDPs.EgoDriver(LatLonAccel(0.0, 0.0))

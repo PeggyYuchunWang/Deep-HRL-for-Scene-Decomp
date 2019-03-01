@@ -1,4 +1,5 @@
 include("../AutomotiveHRLSceneDecomp.jl")
+# using AutomotiveHRLSceneDecomp
 
 function collision_helper(s::Scene, mdp::DrivingMDP)
     ego = s[findfirst(mdp.ego_id, s)]

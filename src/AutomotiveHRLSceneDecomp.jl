@@ -1,5 +1,3 @@
-# __precompile__(true)
-
 # module AutomotiveHRLSceneDecomp
 
 using AutomotiveDrivingModels
@@ -19,18 +17,18 @@ using AutomotivePOMDPs
 using LinearAlgebra
 using Revise
 using POMDPPolicies
-using Reexport
 using RLInterface
 using Records
 using Vec
 using AutoUrban
 using AutomotiveSensors
 using POMDPPolicies
+using JLD2, FileIO
+using ColorTypes, Cairo, Colors
 
-#include("mdps/simple_two_lane.jl")
-#include("utils/helpers.jl")
-
-# @reexport using AutomotiveHRLSceneDecomp.simple_two_lane
-# @reexport using AutomotiveHRLSceneDecomp.helpers
+# include("mdps/simple_two_lane.jl")
+# include("utils/helpers.jl")
+#
+# export DrivingMDP
 
 # end
