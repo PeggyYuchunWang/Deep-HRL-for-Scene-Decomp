@@ -49,7 +49,7 @@ function POMDPs.initialstate(mdp::DrivingMDP, rng::AbstractRNG)
     state2 = VehicleState(Frenet(mdp.roadway[LaneTag(1,2)], 0.0), mdp.roadway, 10.0)
     veh2 = Entity(state2, def, 2)
 
-    state3 = VehicleState(Frenet(mdp.roadway[LaneTag(1,2)],20.0), mdp.roadway, 10.0)
+    state3 = VehicleState(Frenet(mdp.roadway[LaneTag(1,2)], 10.0), mdp.roadway, 10.0)
     veh3 = Entity(state3, def, 3)
 
     push!(scene, veh1)

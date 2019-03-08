@@ -6,12 +6,14 @@ include("../src/utils/helpers.jl")
 mdp = DrivingMDP()
 model = Chain(Dense(12, 32, tanh), Dense(32, 32, tanh), Dense(32, n_actions(mdp)))
 
-solver = DeepQLearningSolver(qnetwork = model, max_steps=300_000,
+solver = DeepQLearningSolver(qnetwork = model, max_steps=1_000_000,
                              learning_rate=0.001,log_freq=500,
                              recurrence=false,double_q=true, dueling=false, prioritized_replay=true, eps_end=0.01,
                              target_update_freq = 3000, eps_fraction=0.5, train_start=10000, buffer_size=400000,
-                             eval_freq=10_000, exploration_policy=masked_linear_epsilon_greedy(300_000, 0.5, 0.01))
-policy = solve(solver, mdp)
+                             eval_freq=10_000, exploration_policy=masked_linear_epsilon_greedy(1_000_000, 0.5, 0.01),
+                             logdir="log/simple_lane/")
+# policy = solve(solver, mdp)
+@load "simple_lanechange_policy.jld2" policy
 
 # policy1 = FunctionPolicy(s -> actions(mdp)[2])
 policy1 = RandomPolicy(mdp)
@@ -35,5 +37,7 @@ ui = @manipulate for frame_index = 1: n_steps(history)
 end
 body!(w, ui) # send the widget in the window and you can interact with it
 
-@save "simple_lanechange_policy.jld2" policy
-@load "simple_lanechange_policy.jld2" policy
+reachgoal(history.state_hist[n_steps(history)], mdp.goal_pos)
+
+# @save "simple_lanechange_policy.jld2" policy
+# @load "simple_lanechange_policy.jld2" policy

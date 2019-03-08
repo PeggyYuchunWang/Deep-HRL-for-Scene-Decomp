@@ -28,7 +28,7 @@ POMDPs.n_actions(mdp::DrivingIntersectMDP) = length(LAT_LON_ACTIONS)
 function POMDPs.initialstate(mdp::DrivingIntersectMDP, rng::AbstractRNG)
     scene = Scene()
     def = VehicleDef()
-    state1 = VehicleState(Frenet(mdp.roadway[LaneTag(1,1)],0.0), mdp.roadway, 10.0)
+    state1 = VehicleState(Frenet(mdp.roadway[LaneTag(1,1)],15.0), mdp.roadway, 10.0)
     veh1 = Vehicle(state1, def, 1)
 
     mdp.models[1] = AutomotivePOMDPs.EgoDriver(LatLonAccel(0.0, 0.0))
@@ -83,6 +83,7 @@ function POMDPs.convert_s(tv::Type{V}, s::Scene, mdp::DrivingIntersectMDP) where
     return svec
 end
 
+# TODO: change for intersectMDP
 function POMDPs.convert_s(ts::Type{Scene}, v::V, mdp::DrivingIntersectMDP) where V<:AbstractArray
     scene = Scene()
     def = VehicleDef()
@@ -110,7 +111,7 @@ end
 
 function POMDPs.isterminal(mdp::DrivingIntersectMDP, s::Scene)
     ego = s[findfirst(mdp.ego_id, s)]
-    if ego.state.posF.s >= mdp.road_length || collision_helper(s, mdp) || off_road(s, mdp)
+    if reachgoal(s, mdp.goal_pos) || collision_helper(s, mdp) || off_road(s, mdp)
         return true
     else
         return false
