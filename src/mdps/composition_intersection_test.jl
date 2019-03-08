@@ -33,6 +33,7 @@ push!(roadway.segments, RoadSegment(lane.tag.segment, [lane]))
 curve = gen_straight_curve(convert(VecE2, C), convert(VecE2, F), 2)
 append_to_curve!(curve, gen_straight_curve(convert(VecE2, C), convert(VecE2, F), 2)[2:end])
 lane = Lane(LaneTag(length(roadway.segments)+1,1), curve)
+@show lane.tag
 push!(roadway.segments, RoadSegment(lane.tag.segment, [lane]))
 
 scene = Scene()
@@ -65,7 +66,7 @@ push!(scene, veh2)
 push!(scene, veh3)
 
 scene1 = Scene()
-state1 = VehicleState(Frenet(roadway[LaneTag(3,1)], 113.), roadway, 10.0)
+state1 = VehicleState(Frenet(roadway[LaneTag(3,1)], 226.), roadway, 10.0)
 veh1 = Vehicle(state1, def, 1)
 
 push!(scene1, veh1)
@@ -82,7 +83,8 @@ ui = @manipulate for frame_index in 1 : nframes(rec)
 end
 body!(w, ui) # send the widget in the window and you can interact with it
 
-goal_pos = Frenet(roadway[LaneTag(3,1)], get_end(roadway[LaneTag(1,1)]))
+goal_pos = Frenet(roadway[LaneTag(3,1)], get_end(roadway[LaneTag(3,1)]))
+@show get_end(roadway[LaneTag(3,1)])
 # goal_pos = get_end_frenet(roadway, LaneTag(3,1))
 @show goal_pos
 @show scene1[1]

@@ -7,6 +7,8 @@ scene = Scene()
 timestep = 0.1
 ncars = 3
 
+B = VecSE2(0.0,0.0,0.0)
+
 carcolors = Dict{Int,Colorant}()
 carcolors[1] = colorant"red"
 carcolors[2] = colorant"green"
