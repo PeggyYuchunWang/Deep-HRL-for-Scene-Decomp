@@ -12,8 +12,9 @@ solver = DeepQLearningSolver(qnetwork = model, max_steps=1_000_000,
                              target_update_freq = 3000, eps_fraction=0.5, train_start=10000, buffer_size=400000,
                              eval_freq=10_000, exploration_policy=masked_linear_epsilon_greedy(1_000_000, 0.5, 0.01),
                              logdir="log/simple_intersection/")
-policy = solve(solver, mdp)
 
+@load "simple_intersection_policy.jld2" policy
+# policy = solve(solver, mdp)
 policy1 = RandomPolicy(mdp)
 hr = HistoryRecorder(max_steps=100)
 history = simulate(hr, mdp, policy, POMDPs.initialstate(mdp, MersenneTwister(1)));
