@@ -1,9 +1,9 @@
 include("../src/AutomotiveHRLSceneDecomp.jl")
-include("../src/mdps/simple_two_lane.jl")
+include("../src/mdps/simple_intersection.jl")
 include("../src/utils/helpers.jl")
 # using AutomotiveHRLSceneDecomp
 
-mdp = DrivingMDP()
+mdp = DrivingIntersectMDP()
 model = Chain(Dense(12, 32, tanh), Dense(32, 32, tanh), Dense(32, n_actions(mdp)))
 
 solver = DeepQLearningSolver(qnetwork = model, max_steps=300_000,
@@ -13,7 +13,7 @@ solver = DeepQLearningSolver(qnetwork = model, max_steps=300_000,
                              eval_freq=10_000, exploration_policy=masked_linear_epsilon_greedy(300_000, 0.5, 0.01))
 policy = solve(solver, mdp)
 
-policy1 = FunctionPolicy(s -> actions(mdp)[2])
+policy1 = RandomPolicy(mdp)
 hr = HistoryRecorder(max_steps=100)
 history = simulate(hr, mdp, policy, POMDPs.initialstate(mdp, MersenneTwister(1)));
 
@@ -22,9 +22,11 @@ carcolors[1] = colorant"red"
 carcolors[2] = colorant"green"
 carcolors[3] = colorant"green"
 
-@manipulate for frame_index in 1 : n_steps(history)
-    AutoViz.render(history.state_hist[frame_index], mdp.roadway, cam=FitToContentCamera(), car_colors=carcolors)
+w = Window() # this should open a window
+ui = @manipulate for frame_index = 1: n_steps(history)
+     AutoViz.render(history.state_hist[frame_index], mdp.roadway, cam=FitToContentCamera(), car_colors=carcolors)
 end
+body!(w, ui) # send the widget in the window and you can interact with it
 
-@save "goal_policy.jld2" policy
-@load "goal_policy.jld2" policy
+@save "simple_intersection_policy.jld2" policy
+@load "simple_intersection_policy.jld2" policy

@@ -2,6 +2,8 @@
 
 *.bson
 
+log/
+
 *.jl.cov
 *.jl.*.cov
 *.jl.mem

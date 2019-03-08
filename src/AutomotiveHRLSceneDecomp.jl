@@ -25,6 +25,7 @@ using AutomotiveSensors
 using POMDPPolicies
 using JLD2, FileIO
 using ColorTypes, Cairo, Colors
+using Blink
 
 # include("mdps/simple_two_lane.jl")
 # include("utils/helpers.jl")
