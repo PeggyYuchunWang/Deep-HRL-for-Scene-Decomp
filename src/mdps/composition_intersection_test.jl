@@ -31,7 +31,7 @@ push!(roadway.segments, RoadSegment(lane.tag.segment, [lane]))
 # segment = gen_straight_segment(1, 1, 113., origin=B+VecE2(-50,DEFAULT_LANE_WIDTH))
 # push!(roadway.segments, segment)
 curve = gen_straight_curve(convert(VecE2, C), convert(VecE2, F), 2)
-append_to_curve!(curve, gen_straight_curve(convert(VecE2, C), convert(VecE2, F), 2)[2:end])
+# append_to_curve!(curve, gen_straight_curve(convert(VecE2, C), convert(VecE2, F), 2)[2:end])
 lane = Lane(LaneTag(length(roadway.segments)+1,1), curve)
 @show lane.tag
 push!(roadway.segments, RoadSegment(lane.tag.segment, [lane]))
@@ -66,7 +66,7 @@ push!(scene, veh2)
 push!(scene, veh3)
 
 scene1 = Scene()
-state1 = VehicleState(Frenet(roadway[LaneTag(3,1)], 226.), roadway, 10.0)
+state1 = VehicleState(Frenet(roadway[LaneTag(3,1)], 114.), roadway, 10.0)
 veh1 = Vehicle(state1, def, 1)
 
 push!(scene1, veh1)

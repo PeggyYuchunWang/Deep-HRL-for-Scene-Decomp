@@ -142,13 +142,14 @@ function gen_simple_intersection()
 end
 
 function gen_composition_intersection()
-    # new roadway
     roadway = Roadway();
     # Define coordinates of the entry and exit points to the intersection
     r = 5.0 # turn radius
     B = VecSE2(0.0,0.0,0.0)
+    C = B+VecE2(-50,DEFAULT_LANE_WIDTH)
     D = VecSE2(r+DEFAULT_LANE_WIDTH,-r,π/2)
     E = VecSE2(2r+DEFAULT_LANE_WIDTH,0,0)
+    F = B+VecE2(63,DEFAULT_LANE_WIDTH)
 
     # Append right turn coming from below
     curve = gen_straight_curve(convert(VecE2, D+VecE2(0,-50)), convert(VecE2, D), 2)
@@ -161,6 +162,11 @@ function gen_composition_intersection()
     # Append straight left
     curve = gen_straight_curve(convert(VecE2, B+VecE2(-50,0)), convert(VecE2, B), 2)
     append_to_curve!(curve, gen_straight_curve(convert(VecE2, B), convert(VecE2, E), 2)[2:end])
+    lane = Lane(LaneTag(length(roadway.segments)+1,1), curve)
+    push!(roadway.segments, RoadSegment(lane.tag.segment, [lane]))
+
+    # Append second lane
+    curve = gen_straight_curve(convert(VecE2, C), convert(VecE2, F), 2)
     lane = Lane(LaneTag(length(roadway.segments)+1,1), curve)
     push!(roadway.segments, RoadSegment(lane.tag.segment, [lane]))
     return roadway
