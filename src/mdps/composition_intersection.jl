@@ -35,7 +35,8 @@ function POMDPs.initialstate(mdp::DrivingIntersectMDP, rng::AbstractRNG)
 
     B = VecSE2(0.0,0.0,0.0)
 
-    state1 = VehicleState(Frenet(mdp.roadway[LaneTag(1,1)],0.0), mdp.roadway, 10.0)
+    state1 = VehicleState(Frenet(mdp.roadway[LaneTag(1,1)],15.0), mdp.roadway, 10.0)
+    # state1 = VehicleState(B + polar(20.0,-π), mdp.roadway, 10.0) # test for q-decomp
     veh1 = Vehicle(state1, def, 1)
 
     state2 = VehicleState(B + polar(50.0,-π), mdp.roadway, 10.0)
