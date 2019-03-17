@@ -3,7 +3,7 @@ include("../src/mdps/composition_intersection.jl")
 include("../src/utils/helpers.jl")
 # using AutomotiveHRLSceneDecomp
 
-mdp = DrivingIntersectMDP()
+mdp = DrivingCombinedMDP()
 model = Chain(Dense(12, 32, relu), Dense(32, 32, relu), Dense(32, n_actions(mdp)))
 
 solver = DeepQLearningSolver(qnetwork = model, max_steps=1_000_000,
@@ -13,8 +13,8 @@ solver = DeepQLearningSolver(qnetwork = model, max_steps=1_000_000,
                              eval_freq=10_000, exploration_policy=masked_linear_epsilon_greedy(1_000_000, 0.5, 0.01),
                              logdir="log/composition_intersection_policy_baseline/", batch_size=128)
 
-# @load "composition_intersection_policy_baseline.jld2" policy
-policy = solve(solver, mdp)
+@load "composition_intersection_policy_baseline.jld2" policy
+# policy = solve(solver, mdp)
 policy1 = RandomPolicy(mdp)
 hr = HistoryRecorder(max_steps=100)
 history = simulate(hr, mdp, policy, POMDPs.initialstate(mdp, MersenneTwister(1)));

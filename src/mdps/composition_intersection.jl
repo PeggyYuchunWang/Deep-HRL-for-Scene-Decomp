@@ -2,7 +2,7 @@ include("../AutomotiveHRLSceneDecomp.jl")
 include("../utils/helpers.jl")
 
 # state = ego vehicle state, action = tuple(long acceleration, steering)
-@with_kw struct DrivingIntersectMDP <: MDP{Scene, LatLonAccel} # MDP{State, Action}
+@with_kw struct DrivingCombinedMDP <: MDP{Scene, LatLonAccel} # MDP{State, Action}
     r_goal::Float64 = 1.0 # reward for reaching goal (default 1)
     discount_factor::Float64 = 0.9 # discount
     cost::Float64 = -1.0
@@ -19,13 +19,13 @@ end
 
 const LAT_LON_ACTIONS = [LatLonAccel(y, x) for x in -2:1.0:2 for y in -1:0.1:1]
 
-function POMDPs.actions(mdp::DrivingIntersectMDP)
+function POMDPs.actions(mdp::DrivingCombinedMDP)
     return LAT_LON_ACTIONS
 end
 
-POMDPs.n_actions(mdp::DrivingIntersectMDP) = length(LAT_LON_ACTIONS)
+POMDPs.n_actions(mdp::DrivingCombinedMDP) = length(LAT_LON_ACTIONS)
 
-function POMDPs.initialstate(mdp::DrivingIntersectMDP, rng::AbstractRNG)
+function POMDPs.initialstate(mdp::DrivingCombinedMDP, rng::AbstractRNG)
     scene = Scene()
     def = VehicleDef()
 
@@ -51,7 +51,7 @@ function POMDPs.initialstate(mdp::DrivingIntersectMDP, rng::AbstractRNG)
     return scene
 end
 
-function POMDPs.generate_s(mdp::DrivingIntersectMDP, s::Scene, a::LatLonAccel, rng::AbstractRNG)
+function POMDPs.generate_s(mdp::DrivingCombinedMDP, s::Scene, a::LatLonAccel, rng::AbstractRNG)
     sp = deepcopy(s)
     mdp.models[mdp.ego_id].a = a
     actions = Vector{LatLonAccel}(undef, mdp.n_cars)
@@ -61,11 +61,11 @@ function POMDPs.generate_s(mdp::DrivingIntersectMDP, s::Scene, a::LatLonAccel, r
     return sp
 end
 
-function POMDPs.discount(mdp::DrivingIntersectMDP)
+function POMDPs.discount(mdp::DrivingCombinedMDP)
     return mdp.discount_factor
 end
 
-function POMDPs.convert_s(tv::Type{V}, s::Scene, mdp::DrivingIntersectMDP) where V<:AbstractArray
+function POMDPs.convert_s(tv::Type{V}, s::Scene, mdp::DrivingCombinedMDP) where V<:AbstractArray
     ego = s[findfirst(mdp.ego_id, s)]
     laneego = ego.state.posF.roadind.tag.lane
     laneego = Flux.onehot(laneego,[1,2])
@@ -86,7 +86,7 @@ function POMDPs.convert_s(tv::Type{V}, s::Scene, mdp::DrivingIntersectMDP) where
 end
 
 # TODO: change for intersectMDP
-function POMDPs.convert_s(ts::Type{Scene}, v::V, mdp::DrivingIntersectMDP) where V<:AbstractArray
+function POMDPs.convert_s(ts::Type{Scene}, v::V, mdp::DrivingCombinedMDP) where V<:AbstractArray
     scene = Scene()
     def = VehicleDef()
 
@@ -111,7 +111,7 @@ function POMDPs.convert_s(ts::Type{Scene}, v::V, mdp::DrivingIntersectMDP) where
     return scene
 end
 
-function POMDPs.isterminal(mdp::DrivingIntersectMDP, s::Scene)
+function POMDPs.isterminal(mdp::DrivingCombinedMDP, s::Scene)
     ego = s[findfirst(mdp.ego_id, s)]
     if reachgoal(s, mdp.goal_pos) || collision_helper(s, mdp) || off_road(s, mdp)
         return true
@@ -120,7 +120,7 @@ function POMDPs.isterminal(mdp::DrivingIntersectMDP, s::Scene)
     end
 end
 
-function POMDPs.reward(mdp::DrivingIntersectMDP, s::Scene, a::LatLonAccel, sp::Scene)
+function POMDPs.reward(mdp::DrivingCombinedMDP, s::Scene, a::LatLonAccel, sp::Scene)
     ego = s[findfirst(mdp.ego_id, s)]
     if collision_helper(sp, mdp) || off_road(sp, mdp)
         return -1.0
@@ -135,6 +135,6 @@ function POMDPs.reward(mdp::DrivingIntersectMDP, s::Scene, a::LatLonAccel, sp::S
     end
 end
 
-function POMDPs.actionindex(mdp::DrivingIntersectMDP, a::LatLonAccel)
+function POMDPs.actionindex(mdp::DrivingCombinedMDP, a::LatLonAccel)
     return findfirst(isequal(a), POMDPs.actions(mdp))
 end
