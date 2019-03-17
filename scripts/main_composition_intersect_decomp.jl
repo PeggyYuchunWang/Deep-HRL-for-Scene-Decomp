@@ -11,8 +11,8 @@ lc_mdp = DrivingMDP()
 in_mdp = DrivingIntersectMDP()
 simple_lc_policy = RandomPolicy(mdp)
 simple_in_policy = RandomPolicy(mdp)
-@load "simple_lanechange_policy.jld2" simple_lc_policy
-@load "simple_intersection_policy.jld2" simple_in_policy
+@load "policies/simple_lanechange_policy.jld2" simple_lc_policy
+@load "policies/simple_intersection_policy.jld2" simple_in_policy
 
 q_network = action_values(simple_lc_policy, lc_scene) + action_values(simple_in_policy, in_scene)
 
