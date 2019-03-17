@@ -1,9 +1,5 @@
 .DS_Store
 
-*.bson
-
-log/
-
 *.jl.cov
 *.jl.*.cov
 *.jl.mem
