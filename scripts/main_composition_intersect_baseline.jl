@@ -4,7 +4,7 @@ include("../src/utils/helpers.jl")
 # using AutomotiveHRLSceneDecomp
 
 mdp = DrivingCombinedMDP()
-model = Chain(Dense(12, 32, relu), Dense(32, 32, relu), Dense(32, n_actions(mdp)))
+model = Chain(Dense(12, 32, leakyrelu), Dense(32, 32, leakyrelu), Dense(32, n_actions(mdp)))
 
 solver = DeepQLearningSolver(qnetwork = model, max_steps=1_000_000,
                              learning_rate=0.001,log_freq=500,
@@ -32,5 +32,5 @@ body!(w, ui) # send the widget in the window and you can interact with it
 
 reachgoal(history.state_hist[n_steps(history)], mdp.goal_pos)
 
-@save "policies/composition_intersection_policy_baseline_2.jld2" policy
-@load "policies/composition_intersection_policy_baseline_2.jld2" policy
+# @save "policies/composition_intersection_policy_baseline_2.jld2" policy
+# @load "policies/composition_intersection_policy_baseline_2.jld2" policy

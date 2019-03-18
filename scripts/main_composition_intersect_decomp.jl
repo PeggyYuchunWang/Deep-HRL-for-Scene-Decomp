@@ -9,12 +9,22 @@ include("../src/utils/value_decomp.jl")
 mdp = DrivingCombinedMDP()
 lc_mdp = DrivingMDP()
 in_mdp = DrivingIntersectMDP()
-simple_lc_policy = RandomPolicy(mdp)
-simple_in_policy = RandomPolicy(mdp)
-@load "policies/simple_lanechange_policy.jld2" simple_lc_policy
-@load "policies/simple_intersection_policy.jld2" simple_in_policy
+simple_lc_policy = RandomPolicy(lc_mdp)
+simple_in_policy = RandomPolicy(in_mdp)
+@load "policies/simple_lanechange_policy.jld2" policy
+simple_lc_policy = policy
+@load "policies/simple_intersection_policy.jld2" policy
+simple_in_policy = policy
 
-q_network = action_values(simple_lc_policy, lc_scene) + action_values(simple_in_policy, in_scene)
+@show simple_lc_policy
+@show getnetwork(simple_lc_policy)
+
+@show q_network = POMDPPolicies.actionvalues(simple_lc_policy, POMDPs.initialstate(lc_mdp, MersenneTwister(1))) + POMDPPolicies.actionvalues(simple_in_policy, POMDPs.initialstate(in_mdp, MersenneTwister(1)))
+
+# for s in states:
+#     extract max action
+#     add to policy
+# end
 
 policy1 = RandomPolicy(mdp)
 hr = HistoryRecorder(max_steps=100)
