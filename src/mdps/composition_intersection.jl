@@ -67,8 +67,8 @@ end
 
 function POMDPs.convert_s(tv::Type{V}, s::Scene, mdp::DrivingCombinedMDP) where V<:AbstractArray
     ego = s[findfirst(mdp.ego_id, s)]
-    laneego = ego.state.posF.roadind.tag.lane
-    laneego = Flux.onehot(laneego,[1,2])
+    laneego = ego.state.posF.roadind.tag.segment
+    laneego = Flux.onehot(laneego,[1,3])
     other_vehicles = []
     for veh in s
         if veh.id != mdp.ego_id
@@ -79,7 +79,7 @@ function POMDPs.convert_s(tv::Type{V}, s::Scene, mdp::DrivingCombinedMDP) where 
     for veh in other_vehicles
         push!(svec, veh.posF.s/mdp.road_length)
         push!(svec, veh.v/20.0)
-        laneveh = Flux.onehot(veh.posF.roadind.tag.lane,[1,2])
+        laneveh = Flux.onehot(veh.posF.roadind.tag.segment,[1,3])
         push!(svec, laneveh...)
     end
     return svec
@@ -90,17 +90,17 @@ function POMDPs.convert_s(ts::Type{Scene}, v::V, mdp::DrivingCombinedMDP) where 
     scene = Scene()
     def = VehicleDef()
 
-    lane1 = v[3] == 1 ? LaneTag(1,1) : LaneTag(1,2)
+    lane1 = v[3] == 1 ? LaneTag(1,1) : LaneTag(3,1)
     state1 = VehicleState(Frenet(mdp.roadway[lane1], v[1]*mdp.road_length), mdp.roadway, v[2]*20.0)
     veh1 = Entity(state1, def, mdp.ego_id)
 
 
-    lane2 = v[7] == 1 ? LaneTag(1,1) : LaneTag(1,2)
+    lane2 = v[7] == 1 ? LaneTag(1,1) : LaneTag(3,1)
     state2 = VehicleState(Frenet(mdp.roadway[lane2], v[5]*mdp.road_length), mdp.roadway, v[6]*20.0)
     veh2 = Entity(state2, def, 2)
 
 
-    lane3 = v[11] == 1 ? LaneTag(1,1) : LaneTag(1,2)
+    lane3 = v[11] == 1 ? LaneTag(1,1) : LaneTag(3,1)
     state3 = VehicleState(Frenet(mdp.roadway[lane3], v[9]*mdp.road_length), mdp.roadway, v[10]*20.0)
     veh3 = Entity(state3, def, 3)
 

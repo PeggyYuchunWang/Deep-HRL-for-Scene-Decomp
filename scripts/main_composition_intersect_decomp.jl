@@ -19,7 +19,12 @@ simple_in_policy = policy
 @show simple_lc_policy
 @show getnetwork(simple_lc_policy)
 
-@show q_network = POMDPPolicies.actionvalues(simple_lc_policy, POMDPs.initialstate(lc_mdp, MersenneTwister(1))) + POMDPPolicies.actionvalues(simple_in_policy, POMDPs.initialstate(in_mdp, MersenneTwister(1)))
+s0 = POMDPs.initialstate(mdp, MersenneTwister(1))
+s_lc, s_rt = decompose(s0)
+
+vals = actionvalues(simple_lc_policy, s_lc) .+ actionvalues(ri, s_rt)
+
+@show q_network = POMDPPolicies.actionvalues(simple_lc_policy, POMDPs.initialstate(lc_mdp, MersenneTwister(1))) .+ POMDPPolicies.actionvalues(simple_in_policy, POMDPs.initialstate(in_mdp, MersenneTwister(1)))
 
 # for s in states:
 #     extract max action

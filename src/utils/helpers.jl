@@ -31,7 +31,7 @@ end
 # TODO: make ego state posF.s abs value
 function reachgoal(s::Scene, mdp::MDP)
     ego = s[findfirst(mdp.ego_id, s)]
-    if mdp.goal_pos.roadind.tag == ego.state.posF.roadind.tag && ego.state.posF.s >= mdp.road_length && abs(mdp.goal_pos.t-ego.state.posF.t) <= 0.5
+    if mdp.goal_pos.roadind.tag == ego.state.posF.roadind.tag && abs(mdp.goal_pos.s-ego.state.posF.s) <= 0.5 && abs(mdp.goal_pos.t-ego.state.posF.t) <= 0.5
         return true
     end
     return false

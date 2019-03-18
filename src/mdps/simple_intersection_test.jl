@@ -23,9 +23,11 @@ models[3] = AutomotivePOMDPs.EgoDriver(LatLonAccel(0.0, 0.0))
 
 state1 = VehicleState(Frenet(roadway[LaneTag(1,1)],15.0), roadway, 10.0)
 veh1 = Vehicle(state1, def, 1)
+@show veh1.state.posF.roadind.tag
 
 state2 = VehicleState(B + polar(50.0,-π), roadway, 10.0)
 veh2 = Vehicle(state2, def, 2)
+@show veh2.state.posF.roadind.tag
 
 state3 = VehicleState(B + polar(30.0,-π), roadway, 10.0)
 veh3 = Vehicle(state3, def, 3)

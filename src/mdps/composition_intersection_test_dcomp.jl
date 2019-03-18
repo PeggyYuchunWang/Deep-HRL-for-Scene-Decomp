@@ -54,19 +54,22 @@ models[3] = AutomotivePOMDPs.EgoDriver(LatLonAccel(0.0, 0.0))
 
 state1 = VehicleState(Frenet(roadway[LaneTag(1,1)],0.0), roadway, 10.0)
 veh1 = Vehicle(state1, def, 1)
+@show veh1.state.posF.roadind.tag
 
 state2 = VehicleState(B + polar(50.0,-π), roadway, 10.0)
 veh2 = Vehicle(state2, def, 2)
+@show veh2.state.posF.roadind.tag
 
 state3 = VehicleState(B + polar(30.0,-π), roadway, 10.0)
 veh3 = Vehicle(state3, def, 3)
+@show veh3.state.posF.roadind.tag
 
 push!(scene, veh1)
 push!(scene, veh2)
 push!(scene, veh3)
 
 scene1 = Scene()
-state1 = VehicleState(Frenet(roadway[LaneTag(3,1)], 114.), roadway, 10.0)
+state1 = VehicleState(Frenet(roadway[LaneTag(1,1)], 0.), roadway, 10.0)
 veh1 = Vehicle(state1, def, 1)
 
 push!(scene1, veh1)
@@ -88,7 +91,12 @@ goal_pos = Frenet(roadway[LaneTag(3,1)], get_end(roadway[LaneTag(3,1)]))
 # goal_pos = get_end_frenet(roadway, LaneTag(3,1))
 @show goal_pos
 @show scene1[1]
-@show veh1.state.posF.roadind.tag.segment
+# @show veh1.state.posF.roadind.tag.segment
+# @show veh1.state.posF.roadind.tag.lane
+# @show veh1.state.posF.s
+# @show veh1.state.posF.t
+@show veh1.state.posF
+@show veh2.state.posF.roadind.tag
 
 # @show reachgoal(rec[0], goal_pos)
 
