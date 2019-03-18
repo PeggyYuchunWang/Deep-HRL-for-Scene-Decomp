@@ -17,7 +17,7 @@ function decompose(s::Scene)
     def = VehicleDef()
     s_lc = Scene()
     s_rt = Scene()
-    lc_road = gen_straight_roadway(2, road_length)
+    lc_road = gen_straight_roadway(2, 100.0)
     rt_road = gen_simple_intersection()
 
     lc_state2 = VehicleState(Frenet(lc_road[LaneTag(1,2)], 0.0), lc_road, 10.0)
@@ -46,7 +46,7 @@ function decompose(s::Scene)
     end
     lc_state1 = VehicleState(Frenet(lc_road[lane_lc], lc_position), lc_road, 10.0)
     lc_veh1 = Vehicle(lc_state1, def, 1)
-    rt_state1 = VehicleState(Frenet(lc_road[lane_lc], ego.state.posF.s), rt_road, 10.0)
+    rt_state1 = VehicleState(Frenet(rt_road[lane_rt], ego.state.posF.s), rt_road, 10.0)
     rt_veh1 = Vehicle(rt_state1, def, 1)
     push!(s_lc, lc_veh1)
     push!(s_lc, lc_veh2)
@@ -59,7 +59,7 @@ end
 
 function POMDPPolicies.actionvalues(p::ComposedPolicy, s::Scene)
     s_lc, s_rt = decompose(s)
-    return actionvalues(p.lane_change_policy, s_lc) .+ actionvalues(p.intersect_policy, s_in)
+    return POMDPPolicies.actionvalues(p.lane_change_policy, s_lc) .+ actionvalues(p.intersect_policy, s_rt)
 end
 
 #decompose - can normalize, change length to 113
@@ -77,7 +77,7 @@ end
 # end
 
 function POMDPPolicies.action(p::ComposedPolicy, s::Scene)
-    vals = actionvalues(p, s)
+    vals = POMDPPolicies.actionvalues(p, s)
     imax = argmax(vals)
     mdp = DrivingCombinedMDP()
     action_map = actions(mdp)
