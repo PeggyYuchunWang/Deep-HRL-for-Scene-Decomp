@@ -15,7 +15,9 @@ solver = DeepQLearningSolver(qnetwork = model, max_steps=1_000_000,
 
 @load "policies/simple_intersection_policy.jld2" policy
 # policy = solve(solver, mdp)
-policy1 = RandomPolicy(mdp)
+# policy1 = RandomPolicy(mdp)
+# @show actions(mdp)
+policy1 = FunctionPolicy(s -> LatLonAccel(0., 0.))
 hr = HistoryRecorder(max_steps=100)
 history = simulate(hr, mdp, policy, POMDPs.initialstate(mdp, MersenneTwister(1)));
 
