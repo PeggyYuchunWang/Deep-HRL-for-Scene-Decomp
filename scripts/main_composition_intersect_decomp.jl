@@ -45,5 +45,5 @@ body!(w, ui) # send the widget in the window and you can interact with it
 
 reachgoal(history.state_hist[n_steps(history)], mdp.goal_pos)
 
-#@save "composition_intersection_policy_decomp.jld2" policy
-#@load "composition_intersection_policy_decomp.jld2" policy
+@save "composition_intersection_policy_decomp.jld2" compPolicy
+@load "composition_intersection_policy_decomp.jld2" compPolicy

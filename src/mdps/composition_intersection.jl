@@ -79,7 +79,7 @@ function POMDPs.convert_s(tv::Type{V}, s::Scene, mdp::DrivingCombinedMDP) where 
     for veh in other_vehicles
         push!(svec, veh.posF.s/mdp.road_length)
         push!(svec, veh.v/20.0)
-        laneveh = Flux.onehot(veh.posF.roadind.tag.segment,[1,3])
+        laneveh = Flux.onehot(veh.posF.roadind.tag.segment, [2,3])
         push!(svec, laneveh...)
     end
     return svec
