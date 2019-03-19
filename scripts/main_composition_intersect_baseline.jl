@@ -26,14 +26,17 @@ carcolors[2] = colorant"green"
 carcolors[3] = colorant"green"
 
 w = Window() # this should open a window
-ui = @manipulate for frame_index = 1: n_steps(history)
+ui = @manipulate for frame_index = 1: n_steps(history) + 1
      AutoViz.render(history.state_hist[frame_index], mdp.roadway, cam=FitToContentCamera(), car_colors=carcolors)
 end
+
 body!(w, ui) # send the widget in the window and you can interact with it
 
-@show reachgoal(history.state_hist[n_steps(history)], mdp.goal_pos)
+@show reachgoal(history.state_hist[end], mdp.goal_pos)
+@show POMDPs.isterminal(mdp, history.state_hist[end])
 @show n_steps(history)
-@show POMDPs.reward(mdp, history.state_hist[n_steps(history)], LatLonAccel(0.0, 0.0), history.state_hist[n_steps(history)])
+@show POMDPs.reward(mdp, history.state_hist[end], LatLonAccel(0.0, 0.0), history.state_hist[end])
+@show POMDPs.reward(mdp, history.state_hist[end], LatLonAccel(0.0, 0.0), history.state_hist[n_steps(history)])
 
 # @save "policies/composition_intersection_policy_baseline_5.jld2" policy
 # @load "policies/composition_intersection_policy_baseline_5.jld2" policy

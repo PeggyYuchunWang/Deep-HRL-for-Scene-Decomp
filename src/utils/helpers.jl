@@ -31,7 +31,7 @@ end
 # TODO: make ego state posF.s abs value
 function reachgoal(s::Scene, mdp::MDP)
     ego = s[findfirst(mdp.ego_id, s)]
-    if mdp.goal_pos.roadind.tag == ego.state.posF.roadind.tag && abs(mdp.goal_pos.s-ego.state.posF.s) <= 0.5 && abs(mdp.goal_pos.t-ego.state.posF.t) <= 0.5
+    if mdp.goal_pos.roadind.tag == ego.state.posF.roadind.tag && abs(mdp.goal_pos.s-ego.state.posF.s) <= 1.0 && abs(mdp.goal_pos.t-ego.state.posF.t) <= DEFAULT_LANE_WIDTH/2
         return true
     end
     return false
@@ -39,7 +39,12 @@ end
 
 function reachgoal(s::Scene, goal_pos::Frenet)
     ego = s[findfirst(1, s)]
-    if goal_pos.roadind.tag == ego.state.posF.roadind.tag && abs(goal_pos.s-ego.state.posF.s) <= 0.5 && abs(goal_pos.t-ego.state.posF.t) <= 0.5
+    @show goal_pos.roadind.tag
+    @show ego.state.posF.roadind.tag
+    @show abs(goal_pos.s-ego.state.posF.s)
+    @show abs(goal_pos.t-ego.state.posF.t)
+    @show DEFAULT_LANE_WIDTH/2
+    if goal_pos.roadind.tag == ego.state.posF.roadind.tag && abs(goal_pos.s-ego.state.posF.s) <= 1.0 && abs(goal_pos.t-ego.state.posF.t) <= DEFAULT_LANE_WIDTH/2
         return true
     end
     return false
