@@ -11,10 +11,10 @@ solver = DeepQLearningSolver(qnetwork = model, max_steps=1_000_000,
                              recurrence=false,double_q=true, dueling=false, prioritized_replay=true, eps_end=0.01,
                              target_update_freq = 3000, eps_fraction=0.5, train_start=10000, buffer_size=400000,
                              eval_freq=10_000, exploration_policy=masked_linear_epsilon_greedy(1_000_000, 0.5, 0.01),
-                             logdir="log/simple_intersection_eval/", batch_size=128)
+                             logdir="log/simple_intersection_rewardchange/", batch_size=128)
 
-@load "policies/simple_intersection_policy.jld2" policy
-# policy = solve(solver, mdp)
+# @load "policies/simple_intersection_policy.jld2" policy
+policy = solve(solver, mdp)
 # policy1 = RandomPolicy(mdp)
 # @show actions(mdp)
 policy1 = FunctionPolicy(s -> LatLonAccel(0., 0.))
@@ -38,5 +38,6 @@ body!(w, ui) # send the widget in the window and you can interact with it
 @show n_steps(history)
 @show POMDPs.reward(mdp, history.state_hist[n_steps(history)], LatLonAccel(0.0, 0.0), history.state_hist[n_steps(history)])
 @show POMDPs.reward(mdp, history.state_hist[end], LatLonAccel(0.0, 0.0), history.state_hist[end])
-# @save "policies/simple_intersection_policy_eval.jld2" policy
-# @load "policies/simple_intersection_policy_eval.jld2" policy
+
+@save "policies/simple_intersection_policy_rewardchange.jld2" policy
+@load "policies/simple_intersection_policy_rewardchange.jld2" policy
