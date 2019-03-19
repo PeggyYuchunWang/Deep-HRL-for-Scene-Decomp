@@ -4,14 +4,14 @@ include("../src/utils/helpers.jl")
 # using AutomotiveHRLSceneDecomp
 
 mdp = DrivingCombinedMDP()
-model = Chain(Dense(12, 32, relu), Dense(32, 32, relu), Dense(32, n_actions(mdp)))
+model = Chain(Dense(15, 32, relu), Dense(32, 32, relu), Dense(32, n_actions(mdp)))
 
 solver = DeepQLearningSolver(qnetwork = model, max_steps=1_000_000,
                              learning_rate=0.001, log_freq=500,
                              recurrence=false,double_q=true, dueling=false, prioritized_replay=true, eps_end=0.1,
                              target_update_freq = 3000, eps_fraction=0.5, train_start=10000, buffer_size=400_000,
                              eval_freq=10_000, exploration_policy=masked_linear_epsilon_greedy(1_000_000, 0.5, 0.1),
-                             logdir="log/composition_intersection_policy_baseline_4/", batch_size=128)
+                             logdir="log/composition_intersection_policy_baseline_5/", batch_size=128)
 
 @load "policies/composition_intersection_policy_baseline.jld2" policy
 # @load "policies/composition_intersection_policy_baseline_2.jld2" policy
@@ -31,7 +31,9 @@ ui = @manipulate for frame_index = 1: n_steps(history)
 end
 body!(w, ui) # send the widget in the window and you can interact with it
 
-reachgoal(history.state_hist[n_steps(history)], mdp.goal_pos)
+@show reachgoal(history.state_hist[n_steps(history)], mdp.goal_pos)
+@show n_steps(history)
+@show POMDPs.reward(mdp, history.state_hist[n_steps(history)], LatLonAccel(0.0, 0.0), history.state_hist[n_steps(history)])
 
-@save "policies/composition_intersection_policy_baseline_4.jld2" policy
-@load "policies/composition_intersection_policy_baseline_4.jld2" policy
+# @save "policies/composition_intersection_policy_baseline_5.jld2" policy
+# @load "policies/composition_intersection_policy_baseline_5.jld2" policy

@@ -16,13 +16,13 @@ simple_lc_policy = policy
 @load "policies/simple_intersection_policy.jld2" policy
 simple_in_policy = policy
 
-@show simple_lc_policy
-@show getnetwork(simple_lc_policy)
+# @show simple_lc_policy
+getnetwork(simple_lc_policy)
 
 s0 = POMDPs.initialstate(mdp, MersenneTwister(1))
 s_lc, s_rt = decompose(s0)
 
-@show vals = actionvalues(simple_lc_policy, s_lc) .+ actionvalues(simple_in_policy, s_rt)
+vals = actionvalues(simple_lc_policy, s_lc) .+ actionvalues(simple_in_policy, s_rt)
 compPolicy = ComposedPolicy(simple_lc_policy, simple_in_policy, actions(mdp))
 # compPolicy.lane_change_policy =
 # compPolicy.intersect_policy =
@@ -43,7 +43,9 @@ ui = @manipulate for frame_index = 1: n_steps(history)
 end
 body!(w, ui) # send the widget in the window and you can interact with it
 
-reachgoal(history.state_hist[n_steps(history)], mdp.goal_pos)
+@show reachgoal(history.state_hist[n_steps(history)], mdp.goal_pos)
+@show n_steps(history)
+@show POMDPs.reward(mdp, history.state_hist[n_steps(history)], LatLonAccel(0.0, 0.0), history.state_hist[n_steps(history)])
 
-@save "composition_intersection_policy_decomp.jld2" compPolicy
-@load "composition_intersection_policy_decomp.jld2" compPolicy
+# @save "policies/composition_intersection_policy_decomp.jld2" compPolicy
+# @load "policies/composition_intersection_policy_decomp.jld2" compPolicy

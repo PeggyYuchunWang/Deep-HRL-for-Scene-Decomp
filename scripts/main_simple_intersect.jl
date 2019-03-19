@@ -32,7 +32,9 @@ ui = @manipulate for frame_index = 1: n_steps(history)
 end
 body!(w, ui) # send the widget in the window and you can interact with it
 
-reachgoal(history.state_hist[n_steps(history)], mdp.goal_pos)
+@show reachgoal(history.state_hist[n_steps(history)], mdp.goal_pos)
+@show n_steps(history)
+@show POMDPs.reward(mdp, history.state_hist[n_steps(history)], LatLonAccel(0.0, 0.0), history.state_hist[n_steps(history)])
 
 # @save "policies/simple_intersection_policy_eval.jld2" policy
 # @load "policies/simple_intersection_policy_eval.jld2" policy
