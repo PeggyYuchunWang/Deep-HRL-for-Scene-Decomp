@@ -24,9 +24,6 @@ s_lc, s_rt = decompose(s0)
 
 vals = actionvalues(simple_lc_policy, s_lc) .+ actionvalues(simple_in_policy, s_rt)
 compPolicy = ComposedPolicy(simple_lc_policy, simple_in_policy, actions(mdp))
-# compPolicy.lane_change_policy =
-# compPolicy.intersect_policy =
-# compPolicy.action_map =
 
 policy1 = RandomPolicy(mdp)
 hr = HistoryRecorder(max_steps=100)
@@ -43,11 +40,12 @@ ui = @manipulate for frame_index = 1: n_steps(history) + 1
 end
 body!(w, ui) # send the widget in the window and you can interact with it
 
+@show reachgoal(history.state_hist[n_steps(history)], mdp.goal_pos)
 @show reachgoal(history.state_hist[end], mdp.goal_pos)
 @show POMDPs.isterminal(mdp, history.state_hist[end])
 @show n_steps(history)
+@show POMDPs.reward(mdp, history.state_hist[n_steps(history)], LatLonAccel(0.0, 0.0), history.state_hist[n_steps(history)])
 @show POMDPs.reward(mdp, history.state_hist[end], LatLonAccel(0.0, 0.0), history.state_hist[end])
-@show POMDPs.reward(mdp, history.state_hist[end], LatLonAccel(0.0, 0.0), history.state_hist[n_steps(history)])
 
 # @save "policies/composition_intersection_policy_decomp.jld2" compPolicy
 # @load "policies/composition_intersection_policy_decomp.jld2" compPolicy
