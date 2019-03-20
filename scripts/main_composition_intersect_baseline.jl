@@ -11,10 +11,11 @@ solver = DeepQLearningSolver(qnetwork = model, max_steps=1_000_000,
                              recurrence=false,double_q=true, dueling=false, prioritized_replay=true, eps_end=0.1,
                              target_update_freq = 3000, eps_fraction=0.5, train_start=10000, buffer_size=400_000,
                              eval_freq=10_000, exploration_policy=masked_linear_epsilon_greedy(1_000_000, 0.5, 0.1),
-                             logdir="log/composition_intersection_policy_baseline_5/", batch_size=128)
+                             logdir="log/composition_intersection_policy_baseline_rewardchange/", batch_size=128)
 
-@load "policies/composition_intersection_policy_baseline.jld2" policy
+# @load "policies/composition_intersection_policy_baseline.jld2" policy
 # @load "policies/composition_intersection_policy_baseline_2.jld2" policy
+@load "policies/composition_intersection_policy_baseline_rewardchange.jld2" policy
 # policy = solve(solver, mdp)
 policy1 = RandomPolicy(mdp)
 hr = HistoryRecorder(max_steps=100)
@@ -39,5 +40,5 @@ body!(w, ui) # send the widget in the window and you can interact with it
 @show POMDPs.reward(mdp, history.state_hist[n_steps(history)], LatLonAccel(0.0, 0.0), history.state_hist[n_steps(history)])
 @show POMDPs.reward(mdp, history.state_hist[end], LatLonAccel(0.0, 0.0), history.state_hist[end])
 
-# @save "policies/composition_intersection_policy_baseline_5.jld2" policy
-# @load "policies/composition_intersection_policy_baseline_5.jld2" policy
+# @save "policies/composition_intersection_policy_baseline_rewardchange.jld2" policy
+# @load "policies/composition_intersection_policy_baseline_rewardchange.jld2" policy

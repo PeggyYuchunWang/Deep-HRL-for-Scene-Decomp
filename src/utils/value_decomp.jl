@@ -30,7 +30,7 @@ function decompose(s::Scene)
     rt_veh2 = Vehicle(rt_state2, def, 2)
     rt_state3 = VehicleState(B + polar(30.0,-π), rt_road, 10.0)
     rt_veh3 = Vehicle(rt_state2, def, 3)
-    lc_position = (ego.state.posF.s/113.)*100.
+    lc_position = (ego.state.posF.s/98.)*100.
     if ego.state.posF.roadind.tag == LaneTag(3,1)
         lane_lc = LaneTag(1,2)
         lane_rt = LaneTag(2,1)

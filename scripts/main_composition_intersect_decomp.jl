@@ -15,6 +15,7 @@ simple_in_policy = RandomPolicy(in_mdp)
 @load "policies/simple_lanechange_policy_rewardchange.jld2" policy
 simple_lc_policy = policy
 @load "policies/simple_intersection_policy.jld2" policy
+# @load "policies/simple_intersection_policy_rewardchange.jld2" policy
 simple_in_policy = policy
 
 # @show simple_lc_policy
