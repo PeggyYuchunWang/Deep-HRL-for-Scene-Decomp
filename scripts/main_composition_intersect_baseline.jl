@@ -17,6 +17,8 @@ solver = DeepQLearningSolver(qnetwork = model, max_steps=1_000_000,
 # @load "policies/composition_intersection_policy_baseline_2.jld2" policy
 @load "policies/composition_intersection_policy_baseline_rewardchange.jld2" policy
 # policy = solve(solver, mdp)
+
+# policy1 = FunctionPolicy(s -> actions(mdp)[LatLonAccel(0.0, 0.0)])
 policy1 = RandomPolicy(mdp)
 hr = HistoryRecorder(max_steps=100)
 history = simulate(hr, mdp, policy, POMDPs.initialstate(mdp, MersenneTwister(1)));
@@ -30,8 +32,13 @@ w = Window() # this should open a window
 ui = @manipulate for frame_index = 1: n_steps(history) + 1
      AutoViz.render(history.state_hist[frame_index], mdp.roadway, cam=FitToContentCamera(), car_colors=carcolors)
 end
-
 body!(w, ui) # send the widget in the window and you can interact with it
+
+global eval_reward = 0.0
+for frame_index = 1: n_steps(history) + 1
+    global eval_reward += POMDPs.reward(mdp, history.state_hist[frame_index], LatLonAccel(0.0, 0.0), history.state_hist[frame_index])
+end
+@show eval_reward
 
 @show reachgoal(history.state_hist[n_steps(history)], mdp.goal_pos)
 @show reachgoal(history.state_hist[end], mdp.goal_pos)
