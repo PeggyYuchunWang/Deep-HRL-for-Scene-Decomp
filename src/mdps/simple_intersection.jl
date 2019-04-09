@@ -8,16 +8,15 @@ include("../utils/helpers.jl")
     cost::Float64 = -1.0
     road_length::Float64 = 100.0
     roadway::Roadway = gen_simple_intersection()
-    delta_t::Float64 = 1.0
+    delta_t::Float64 = 0.5
     ego_id::Int64 = 1
-    timestep::Float64 = 0.1
     n_cars::Int64 = 3
     models::Dict{Int, DriverModel} = Dict()
     goal_pos::Frenet = get_end_frenet(roadway, LaneTag(1,1))
-    speed_limit::Float64 = 27.0
+    speed_limit::Float64 = 15.0
 end
 
-const LAT_LON_ACTIONS = [LatLonAccel(y, x) for x in -2:1.0:2 for y in -1:0.1:1]
+const LAT_LON_ACTIONS = [LatLonAccel(y, x) for x in -4:1.0:3 for y in -1:0.1:1]
 
 function POMDPs.actions(mdp::DrivingIntersectMDP)
     return LAT_LON_ACTIONS

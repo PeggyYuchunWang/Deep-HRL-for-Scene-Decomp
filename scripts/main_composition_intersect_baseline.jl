@@ -10,7 +10,8 @@ solver = DeepQLearningSolver(qnetwork = model, max_steps=1_000_000,
                              learning_rate=0.001, log_freq=500,
                              recurrence=false,double_q=true, dueling=false, prioritized_replay=true, eps_end=0.1,
                              target_update_freq = 3000, eps_fraction=0.5, train_start=10000, buffer_size=400_000,
-                             eval_freq=10_000, exploration_policy=masked_linear_epsilon_greedy(1_000_000, 0.5, 0.1),
+                             eval_freq=10_000,
+                             # exploration_policy=masked_linear_epsilon_greedy(1_000_000, 0.5, 0.1),
                              logdir="log/composition_intersection_policy_baseline_rewardchange/", batch_size=128)
 
 # @load "policies/composition_intersection_policy_baseline.jld2" policy

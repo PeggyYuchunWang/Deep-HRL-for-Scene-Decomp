@@ -141,6 +141,33 @@ function gen_simple_intersection()
     return roadway
 end
 
+function gen_simple_intersection_left()
+    # new roadway
+    roadway = Roadway();
+    # Define coordinates of the entry and exit points to the intersection
+    r = 5.0 # turn radius
+    A = VecSE2(0.0,DEFAULT_LANE_WIDTH,-π)
+    B = VecSE2(0.0,0.0,0.0)
+    C = VecSE2(r,-r,-π/2)
+    D = VecSE2(r+DEFAULT_LANE_WIDTH,-r,π/2)
+    E = VecSE2(2r+DEFAULT_LANE_WIDTH,0,0)
+    F = VecSE2(2r+DEFAULT_LANE_WIDTH,DEFAULT_LANE_WIDTH,-π)
+
+    # Append left turn coming from below
+    curve = gen_straight_curve(convert(VecE2, D+VecE2(0,-50)), convert(VecE2, D), 2)
+    append_to_curve!(curve, gen_bezier_curve(D, A, 0.6r, 0.6r, 51)[2:end])
+    append_to_curve!(curve, gen_straight_curve(convert(VecE2, A), convert(VecE2, A+VecE2(-50,0)), 2))
+    lane = Lane(LaneTag(length(roadway.segments)+1,1), curve)
+    push!(roadway.segments, RoadSegment(lane.tag.segment, [lane]))
+
+    # Append straight right
+    curve = gen_straight_curve(convert(VecE2, F+VecE2(50,0)), convert(VecE2, F), 2)
+    append_to_curve!(curve, gen_straight_curve(convert(VecE2, F), convert(VecE2, A), 2)[2:end])
+    lane = Lane(LaneTag(length(roadway.segments)+1,1), curve)
+    push!(roadway.segments, RoadSegment(lane.tag.segment, [lane]))
+    return roadway
+end
+
 function gen_composition_intersection()
     roadway = Roadway();
     # Define coordinates of the entry and exit points to the intersection

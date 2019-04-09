@@ -8,17 +8,15 @@ include("../AutomotiveHRLSceneDecomp.jl")
     cost::Float64 = -1.0
     road_length::Float64 = 100.0
     roadway::Roadway = gen_straight_roadway(2, road_length)
-    delta_t::Float64 = 1.0
+    delta_t::Float64 = 0.5
     ego_id::Int64 = 1
-    timestep::Float64 = 0.1
     n_cars::Int64 = 3
-    # carcolors::Dict{Int,Colorant} = Dict()
     models::Dict{Int, DriverModel} = Dict()
     goal_pos::Frenet = Frenet(roadway[LaneTag(1,2)], road_length)
-    speed_limit::Float64 = 27.0
+    speed_limit::Float64 = 15.0
 end
 
-const LAT_LON_ACTIONS = [LatLonAccel(y, x) for x in -2:1.0:2 for y in -1:0.1:1]
+const LAT_LON_ACTIONS = [LatLonAccel(y, x) for x in -4:1.0:3 for y in -1:0.1:1]
 
 # function POMDPs.actions(mdp::DrivingMDP)
 #     return [LatLonAccel(y, x) for x in -2:1.0:2 for y in -1:0.1:1]
@@ -35,10 +33,6 @@ function POMDPs.initialstate(mdp::DrivingMDP, rng::AbstractRNG)
     def = VehicleDef()
     state1 = VehicleState(Frenet(mdp.roadway[LaneTag(1,1)],0.0), mdp.roadway, 10.0)
     veh1 = Entity(state1, def, mdp.ego_id)
-
-    # mdp.carcolors[1] = colorant"red"
-    # mdp.carcolors[2] = colorant"green"
-    # mdp.carcolors[3] = colorant"green"
 
     mdp.models[1] = AutomotivePOMDPs.EgoDriver(LatLonAccel(0.0, 0.0))
     mdp.models[2] = AutomotivePOMDPs.EgoDriver(LatLonAccel(0.0, 0.0))
