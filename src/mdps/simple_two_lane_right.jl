@@ -113,7 +113,7 @@ end
 
 function POMDPs.isterminal(mdp::DrivingLaneRightMDP, s::Scene)
     ego = s[findfirst(mdp.ego_id, s)]
-    if ego.state.posF.s >= mdp.road_length || collision_helper(s, mdp) || off_road(s, mdp)
+    if reachgoal(s, mdp.goal_pos) || collision_helper(s, mdp) || off_road(s, mdp) || ego.state.posF.s >= mdp.road_length
         return true
     else
         return false

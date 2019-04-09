@@ -6,7 +6,7 @@ include("../utils/helpers.jl")
     r_goal::Float64 = 1.0 # reward for reaching goal (default 1)
     discount_factor::Float64 = 0.9 # discount
     cost::Float64 = -1.0
-    road_length::Float64 = 100.0
+    road_length::Float64 = 113.0
     roadway::Roadway = gen_simple_intersection_left()
     delta_t::Float64 = 0.5
     ego_id::Int64 = 1
