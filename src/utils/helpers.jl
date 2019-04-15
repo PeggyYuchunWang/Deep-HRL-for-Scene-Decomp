@@ -240,3 +240,13 @@ Returns: Frenet
 function get_end_frenet(roadway::Roadway, tag::LaneTag)
     return Frenet(roadway[tag], get_end(roadway[tag]))
 end
+
+struct LaneOverlay <: SceneOverlay
+    lane::Lane
+    color::Colorant
+end
+
+function AutoViz.render!(rendermodel::RenderModel, overlay::LaneOverlay, scene::Scene, roadway::Roadway)
+    render!(rendermodel, overlay.lane, roadway, color_asphalt=overlay.color) # this display a lane with the specified color
+    return rendermodel
+end

@@ -12,6 +12,7 @@ solver = DeepQLearningSolver(qnetwork = model, max_steps=1_000_000,
                              target_update_freq = 3000, eps_fraction=0.5, train_start=10000, buffer_size=400000,
                              eval_freq=10_000,
                              # exploration_policy=masked_linear_epsilon_greedy(1_000_000, 0.5, 0.01),
+                             # evaluation_policy=masked_linear_epsilon_greedy(1_000_000, 0., 0.),
                              logdir="log/simple_lane_next/", batch_size=128)
 # policy = solve(solver, mdp)
 # @load "policies/simple_lanechange_policy.jld2" policy
