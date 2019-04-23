@@ -11,7 +11,6 @@ using Parameters
 using Reel
 using Random
 using Printf
-using POMDPSimulators
 using Interact
 using AutomotivePOMDPs
 using LinearAlgebra
