@@ -23,25 +23,32 @@ function off_road(s::Scene, mdp::MDP)
     return false
 end
 
-function off_lane(s::Scene, mdp::MDP)
-    ego = s[findfirst(mdp.ego_id, s)]
-    if ego.state.posF.roadind.tag != LaneTag(4, 1)
-        return true
-    end
-    return false
-end
+# function off_lane(s::Scene, mdp::MDP)
+#     ego = s[findfirst(mdp.ego_id, s)]
+#     if ego.state.posF.roadind.tag != LaneTag(4, 1)
+#         return true
+#     end
+#     return false
+# end
 
 function distance(s::Scene, mdp::MDP)
     ego = s[findfirst(mdp.ego_id, s)]
-    goal = get_posG(mdp.goal_pos, mdp.roadway)
-    d = norm(VecE2(goal - ego.state.posG))
+    goal = mdp.goal_pos
+    road_lane = mdp.roadway[goal.roadind.tag]
+    ego_proj = proj(ego.state.posG, road_lane, mdp.roadway)
+    ego_proj = Frenet(ego_proj, mdp.roadway)
+    d = abs(goal.s - ego_proj.s)
+    # d = norm(VecE2(goal - ego.state.posG))
     return d
 end
 
-# TODO: make ego state posF.s abs value
+# TODO: make ego state posF.s abs value, test this, projection
 function reachgoal(s::Scene, mdp::MDP)
     ego = s[findfirst(mdp.ego_id, s)]
-    if mdp.goal_pos.roadind.tag == ego.state.posF.roadind.tag && abs(mdp.goal_pos.s-ego.state.posF.s) <= 1.0 && abs(mdp.goal_pos.t-ego.state.posF.t) <= DEFAULT_LANE_WIDTH/2-.25
+    goal_lane = mdp.roadway[mdp.goal_pos.roadind.tag]
+    ego_proj = proj(ego.state.posG, goal_lane, mdp.roadway)
+    ego_proj = Frenet(ego_proj, mdp.roadway)
+    if abs(mdp.goal_pos.s-ego_proj.s) <= 1.0 && abs(mdp.goal_pos.t-ego_proj.t) <= DEFAULT_LANE_WIDTH/2-.25
         return true
     end
     return false
@@ -49,7 +56,19 @@ end
 
 function reachgoal(s::Scene, goal_pos::Frenet)
     ego = s[findfirst(1, s)]
-    if goal_pos.roadind.tag == ego.state.posF.roadind.tag && abs(goal_pos.s-ego.state.posF.s) <= 1.0 && abs(goal_pos.t-ego.state.posF.t) <= DEFAULT_LANE_WIDTH/2-.25
+    goal_lane = mdp.roadway[goal_pos.roadind.tag]
+    ego_proj = proj(ego.state.posG, goal_lane, mdp.roadway)
+    ego_proj = Frenet(ego_proj, mdp.roadway)
+    if abs(goal_pos.s-ego_proj.s) <= 1.0 && abs(goal_pos.t-ego_proj.t) <= DEFAULT_LANE_WIDTH/2-.25
+        return true
+    end
+    return false
+end
+
+function reachgoal_posG(s::Scene, mdp::MDP)
+    ego = s[findfirst(1, s)]
+    goal_pos = get_posG(mdp.goal_pos, mdp.roadway)
+    if norm(VecE2(ego.state.posG - goal_pos)) <= DEFAULT_LANE_WIDTH/2-.25
         return true
     end
     return false
@@ -263,17 +282,17 @@ function gen_left_turn()
     lane = Lane(LaneTag(length(roadway.segments)+1,1), curve)
     push!(roadway.segments, RoadSegment(lane.tag.segment, [lane]))
 
-    # Append right turn coming from below
-    curve = gen_straight_curve(convert(VecE2, D+VecE2(0,-50)), convert(VecE2, D), 2)
-    append_to_curve!(curve, gen_bezier_curve(D, E, 0.6r, 0.6r, 51)[2:end])
-    append_to_curve!(curve, gen_straight_curve(convert(VecE2, E), convert(VecE2, E+VecE2(50,0)), 2))
-    lane = Lane(LaneTag(length(roadway.segments)+1,1), curve)
-    push!(roadway.segments, RoadSegment(lane.tag.segment, [lane]))
-
     # Append left turn coming from below
     curve = gen_straight_curve(convert(VecE2, D+VecE2(0,-50)), convert(VecE2, D), 2)
     append_to_curve!(curve, gen_bezier_curve(D, A, 0.9r, 0.9r, 51)[2:end])
     append_to_curve!(curve, gen_straight_curve(convert(VecE2, A), convert(VecE2, A+VecE2(-100,0)), 2))
+    lane = Lane(LaneTag(length(roadway.segments)+1,1), curve)
+    push!(roadway.segments, RoadSegment(lane.tag.segment, [lane]))
+
+    # Append right turn coming from below
+    curve = gen_straight_curve(convert(VecE2, D+VecE2(0,-50)), convert(VecE2, D), 2)
+    append_to_curve!(curve, gen_bezier_curve(D, E, 0.6r, 0.6r, 51)[2:end])
+    append_to_curve!(curve, gen_straight_curve(convert(VecE2, E), convert(VecE2, E+VecE2(50,0)), 2))
     lane = Lane(LaneTag(length(roadway.segments)+1,1), curve)
     push!(roadway.segments, RoadSegment(lane.tag.segment, [lane]))
 

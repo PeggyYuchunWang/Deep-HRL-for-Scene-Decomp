@@ -1,7 +1,6 @@
 include("../AutomotiveHRLSceneDecomp.jl")
 include("../utils/helpers.jl")
 
-# new roadway
 roadway = Roadway();
 
 # Define coordinates of the entry and exit points to the intersection
@@ -13,20 +12,33 @@ D = VecSE2(r+DEFAULT_LANE_WIDTH,-r,π/2)
 E = VecSE2(2r+DEFAULT_LANE_WIDTH,0,0)
 F = VecSE2(2r+DEFAULT_LANE_WIDTH,DEFAULT_LANE_WIDTH,-π)
 
+
+# Append right turn coming from the left
+curve = gen_straight_curve(convert(VecE2, B+VecE2(-100,0)), convert(VecE2, B), 2)
+append_to_curve!(curve, gen_bezier_curve(B, C, 0.6r, 0.6r, 51)[2:end])
+append_to_curve!(curve, gen_straight_curve(convert(VecE2, C), convert(VecE2, C+VecE2(0,-50.0)), 2))
+lane = Lane(LaneTag(length(roadway.segments)+1,1), curve)
+push!(roadway.segments, RoadSegment(lane.tag.segment, [lane]))
+
+
 # Append straight left
-curve = gen_straight_curve(convert(VecE2, B+VecE2(-100,0)), convert(VecE2, E+VecE2(50,0)), 2)
+curve = gen_straight_curve(convert(VecE2, B+VecE2(-100,0)), convert(VecE2, B), 2)
+append_to_curve!(curve, gen_straight_curve(convert(VecE2, B), convert(VecE2, E), 2)[2:end])
+append_to_curve!(curve, gen_straight_curve(convert(VecE2, E), convert(VecE2, E+VecE2(50,0)), 2))
 lane = Lane(LaneTag(length(roadway.segments)+1,1), curve)
 push!(roadway.segments, RoadSegment(lane.tag.segment, [lane]))
 
 # Append straight right
-curve = gen_straight_curve(convert(VecE2, F+VecE2(50,0)), convert(VecE2, A+VecE2(-100,0)), 2)
+curve = gen_straight_curve(convert(VecE2, F+VecE2(50,0)), convert(VecE2, F), 2)
+append_to_curve!(curve, gen_straight_curve(convert(VecE2, F), convert(VecE2, A), 2)[2:end])
+append_to_curve!(curve, gen_straight_curve(convert(VecE2, A), convert(VecE2, A+VecE2(-100,0)), 2))
 lane = Lane(LaneTag(length(roadway.segments)+1,1), curve)
 push!(roadway.segments, RoadSegment(lane.tag.segment, [lane]))
 
-# Append right turn coming from below
-curve = gen_straight_curve(convert(VecE2, D+VecE2(0,-50)), convert(VecE2, D), 2)
-append_to_curve!(curve, gen_bezier_curve(D, E, 0.6r, 0.6r, 51)[2:end])
-append_to_curve!(curve, gen_straight_curve(convert(VecE2, E), convert(VecE2, E+VecE2(50,0)), 2))
+# Append left turn coming from the right
+curve = gen_straight_curve(convert(VecE2, F+VecE2(50,0)), convert(VecE2, F), 2)
+append_to_curve!(curve, gen_bezier_curve(F, C, 0.9r, 0.9r, 51)[2:end])
+append_to_curve!(curve, gen_straight_curve(convert(VecE2, C), convert(VecE2, C+VecE2(0,-50)), 2))
 lane = Lane(LaneTag(length(roadway.segments)+1,1), curve)
 push!(roadway.segments, RoadSegment(lane.tag.segment, [lane]))
 
@@ -37,17 +49,10 @@ append_to_curve!(curve, gen_straight_curve(convert(VecE2, A), convert(VecE2, A+V
 lane = Lane(LaneTag(length(roadway.segments)+1,1), curve)
 push!(roadway.segments, RoadSegment(lane.tag.segment, [lane]))
 
-# Append right turn coming from the left
-curve = gen_straight_curve(convert(VecE2, B+VecE2(-100,0)), convert(VecE2, B), 2)
-append_to_curve!(curve, gen_bezier_curve(B, C, 0.6r, 0.6r, 51)[2:end])
-append_to_curve!(curve, gen_straight_curve(convert(VecE2, C), convert(VecE2, C+VecE2(0,-50.0)), 2))
-lane = Lane(LaneTag(length(roadway.segments)+1, 1), curve)
-push!(roadway.segments, RoadSegment(lane.tag.segment, [lane]))
-
-# Append left turn coming from the right
-curve = gen_straight_curve(convert(VecE2, F+VecE2(50,0)), convert(VecE2, F), 2)
-append_to_curve!(curve, gen_bezier_curve(F, C, 0.9r, 0.9r, 51)[2:end])
-append_to_curve!(curve, gen_straight_curve(convert(VecE2, C), convert(VecE2, C+VecE2(0,-50)), 2))
+# Append right turn coming from below
+curve = gen_straight_curve(convert(VecE2, D+VecE2(0,-50)), convert(VecE2, D), 2)
+append_to_curve!(curve, gen_bezier_curve(D, E, 0.6r, 0.6r, 51)[2:end])
+append_to_curve!(curve, gen_straight_curve(convert(VecE2, E), convert(VecE2, E+VecE2(50,0)), 2))
 lane = Lane(LaneTag(length(roadway.segments)+1,1), curve)
 push!(roadway.segments, RoadSegment(lane.tag.segment, [lane]))
 

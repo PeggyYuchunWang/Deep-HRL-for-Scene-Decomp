@@ -12,11 +12,11 @@ solver = DeepQLearningSolver(qnetwork = model, max_steps=1_000_000,
                              target_update_freq = 3000, eps_fraction=0.5, train_start=10000, buffer_size=400000,
                              eval_freq=10_000,
                              # exploration_policy=masked_linear_epsilon_greedy(1_000_000, 0.5, 0.01),
-                             logdir="log/simple_intersection_rewardchange_2/", batch_size=128)
+                             logdir="log/simple_intersection_rewardchange_3/", batch_size=128)
 
-@load "policies/simple_intersection_policy.jld2" policy
+# @load "policies/simple_intersection_policy.jld2" policy
 # @load "policies/simple_intersection_policy_rewardchange.jld2" policy
-# policy = solve(solver, mdp)
+policy = solve(solver, mdp)
 policy1 = RandomPolicy(mdp)
 # policy1 = FunctionPolicy(s -> actions(mdp)[LatLonAccel(0.0, 0.0)])
 # @show actions(mdp)

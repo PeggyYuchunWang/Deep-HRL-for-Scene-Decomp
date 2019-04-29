@@ -12,11 +12,11 @@ include("../utils/helpers.jl")
     ego_id::Int64 = 1
     n_cars::Int64 = 3
     models::Dict{Int, DriverModel} = Dict()
-    goal_pos::Frenet = get_end_frenet(roadway, LaneTag(4,1))
+    goal_pos::Frenet = get_end_frenet(roadway, LaneTag(3,1))
     speed_limit::Float64 = 15.0
 end
 
-const LAT_LON_ACTIONS = [LatLonAccel(y, x) for x in -4:2.0:3 for y in -0.5:0.1:0.5]
+const LAT_LON_ACTIONS = [LatLonAccel(y, x) for x in -4:1.0:3 for y in 0.0]
 
 function POMDPs.actions(mdp::DrivingLeftTurnMDP)
     return LAT_LON_ACTIONS
@@ -27,17 +27,17 @@ POMDPs.n_actions(mdp::DrivingLeftTurnMDP) = length(LAT_LON_ACTIONS)
 function POMDPs.initialstate(mdp::DrivingLeftTurnMDP, rng::AbstractRNG)
     scene = Scene()
     def = VehicleDef()
-    state1 = VehicleState(Frenet(mdp.roadway[LaneTag(4,1)],0.0), mdp.roadway, 10.0)
+    state1 = VehicleState(Frenet(mdp.roadway[LaneTag(3,1)],0.0), mdp.roadway, 10.0)
     veh1 = Vehicle(state1, def, 1)
 
     mdp.models[1] = AutomotivePOMDPs.EgoDriver(LatLonAccel(0.0, 0.0))
     mdp.models[2] = AutomotivePOMDPs.EgoDriver(LatLonAccel(0.0, 0.0))
     mdp.models[3] = AutomotivePOMDPs.EgoDriver(LatLonAccel(0.0, 0.0))
 
-    state2 = VehicleState(Frenet(mdp.roadway[LaneTag(1,1)], 45.), mdp.roadway, 10.0)
+    state2 = VehicleState(Frenet(mdp.roadway[LaneTag(1,1)], 40.), mdp.roadway, 10.0)
     veh2 = Vehicle(state2, def, 2)
 
-    state3 = VehicleState(Frenet(mdp.roadway[LaneTag(1,1)], 55.), mdp.roadway, 10.0)
+    state3 = VehicleState(Frenet(mdp.roadway[LaneTag(1,1)], 50.), mdp.roadway, 10.0)
     veh3 = Vehicle(state3, def, 3)
 
     push!(scene, veh1)
@@ -85,17 +85,17 @@ function POMDPs.convert_s(ts::Type{Scene}, v::V, mdp::DrivingLeftTurnMDP) where 
     scene = Scene()
     def = VehicleDef()
 
-    lane1 = v[3] == 1 ? LaneTag(1,1) : LaneTag(4,1)
+    lane1 = v[3] == 1 ? LaneTag(1,1) : LaneTag(3,1)
     state1 = VehicleState(Frenet(mdp.roadway[lane1], v[1]*mdp.road_length), mdp.roadway, v[2]*20.0)
     veh1 = Entity(state1, def, mdp.ego_id)
 
 
-    lane2 = v[7] == 1 ? LaneTag(1,1) : LaneTag(4,1)
+    lane2 = v[7] == 1 ? LaneTag(1,1) : LaneTag(3,1)
     state2 = VehicleState(Frenet(mdp.roadway[lane2], v[5]*mdp.road_length), mdp.roadway, v[6]*20.0)
     veh2 = Entity(state2, def, 2)
 
 
-    lane3 = v[11] == 1 ? LaneTag(1,1) : LaneTag(4,1)
+    lane3 = v[11] == 1 ? LaneTag(1,1) : LaneTag(3,1)
     state3 = VehicleState(Frenet(mdp.roadway[lane3], v[9]*mdp.road_length), mdp.roadway, v[10]*20.0)
     veh3 = Entity(state3, def, 3)
 
@@ -108,7 +108,7 @@ end
 
 function POMDPs.isterminal(mdp::DrivingLeftTurnMDP, s::Scene)
     ego = s[findfirst(mdp.ego_id, s)]
-    if reachgoal(s, mdp.goal_pos) || collision_helper(s, mdp) || off_road(s, mdp) || off_lane(s, mdp)
+    if reachgoal(s, mdp) || collision_helper(s, mdp) || off_road(s, mdp)
         return true
     else
         return false
@@ -117,7 +117,7 @@ end
 
 function POMDPs.reward(mdp::DrivingLeftTurnMDP, s::Scene, a::LatLonAccel, sp::Scene)
     ego = s[findfirst(mdp.ego_id, s)]
-    if collision_helper(sp, mdp) || off_road(sp, mdp) || off_lane(s, mdp)
+    if collision_helper(sp, mdp) || off_road(sp, mdp)
         return -1.0
     elseif reachgoal(sp, mdp)
         return 1.0
