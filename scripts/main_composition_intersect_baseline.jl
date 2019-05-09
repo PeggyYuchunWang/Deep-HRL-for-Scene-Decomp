@@ -4,7 +4,7 @@ include("../src/utils/helpers.jl")
 # using AutomotiveHRLSceneDecomp
 
 mdp = DrivingCombinedMDP()
-model = Chain(Dense(15, 32, relu), Dense(32, 32, relu), Dense(32, n_actions(mdp)))
+model = Chain(Dense(18, 32, relu), Dense(32, 32, relu), Dense(32, n_actions(mdp)))
 
 solver = DeepQLearningSolver(qnetwork = model, max_steps=300_000,
                              learning_rate=0.001, log_freq=500,
@@ -12,15 +12,15 @@ solver = DeepQLearningSolver(qnetwork = model, max_steps=300_000,
                              target_update_freq = 3000, eps_fraction=0.5, train_start=10000, buffer_size=400_000,
                              eval_freq=10_000,
                              # exploration_policy=masked_linear_epsilon_greedy(1_000_000, 0.5, 0.1),
-                             logdir="log/composition_intersection_policy_baseline_yike/", batch_size=128)
+                             logdir="log/composition_intersection_policy_baseline_test5/", batch_size=128)
 
 # @load "policies/composition_intersection_policy_baseline.jld2" policy
 # @load "policies/composition_intersection_policy_baseline_2.jld2" policy
 # @load "policies/composition_intersection_policy_baseline_rewardchange.jld2" policy
 policy = solve(solver, mdp)
 weights = getnetwork(policy)
-@save "weights/comp_baseline_policy_weights.jld2" weights
-@load "weights/comp_baseline_policy_weights.jld2" weights
+@save "weights/comp_baseline_policy_weights_test5.jld2" weights
+@load "weights/comp_baseline_policy_weights_test5.jld2" weights
 policy = NNPolicy(mdp, weights, actions(mdp), 1)
 
 # policy1 = FunctionPolicy(s -> actions(mdp)[LatLonAccel(0.0, 0.0)])

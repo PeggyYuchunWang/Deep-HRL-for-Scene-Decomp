@@ -4,22 +4,22 @@ include("../src/utils/helpers.jl")
 # using AutomotiveHRLSceneDecomp
 
 mdp = DrivingLeftTurnMDP()
-model = Chain(Dense(24, 32, relu), Dense(32, 32, relu), Dense(32, n_actions(mdp)))
+model = Chain(Dense(27, 32, relu), Dense(32, 32, relu), Dense(32, n_actions(mdp)))
 
-solver = DeepQLearningSolver(qnetwork = model, max_steps=100_000,
-                             learning_rate=0.0001,log_freq=500,
+solver = DeepQLearningSolver(qnetwork = model, max_steps=300_000,
+                             learning_rate=0.001,log_freq=500,
                              recurrence=false,double_q=true, dueling=false, prioritized_replay=true, eps_end=0.01,
                              target_update_freq = 3000, eps_fraction=0.5, train_start=10000, buffer_size=400000,
-                             eval_freq=10_000, logdir="log/left_turn_lane_yike/", batch_size=128)
+                             eval_freq=10_000, logdir="log/left_turn_lane_test6/", batch_size=128)
                              # exploration_policy=masked_linear_epsilon_greedy(1_000_000, 0.5, 0.01),
 
 # @load "policies/left_turn_lane_policy.jld2" policy
 policy = solve(solver, mdp)
 # TODO: get weights using getnetwork(policy), @save
 weights = getnetwork(policy)
-@save "weights/left_turn_lane_weights_test.jld2" weights
+@save "weights/left_turn_lane_weights_test6.jld2" weights
 # TODO: loading - NNPolicy(mdp, network, actions(mdp), 1)
-@load "weights/left_turn_lane_weights_test.jld2" weights
+@load "weights/left_turn_lane_weights_test6.jld2" weights
 policy = NNPolicy(mdp, weights, actions(mdp), 1)
 policy1 = RandomPolicy(mdp)
 # policy1 = FunctionPolicy(s -> LatLonAccel(0., 0.))
