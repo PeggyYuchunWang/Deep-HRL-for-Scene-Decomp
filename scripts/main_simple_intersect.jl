@@ -16,9 +16,9 @@ solver = DeepQLearningSolver(qnetwork = model, max_steps=300_000,
 
 # @load "policies/simple_intersection_policy.jld2" policy
 # @load "policies/simple_intersection_policy_rewardchange.jld2" policy
-policy = solve(solver, mdp)
-weights = getnetwork(policy)
-@save "weights/simple_intersection_policy_weights_test6.jld2" weights
+# policy = solve(solver, mdp)
+# weights = getnetwork(policy)
+# @save "weights/simple_intersection_policy_weights_test6.jld2" weights
 @load "weights/simple_intersection_policy_weights_test6.jld2" weights
 policy = NNPolicy(mdp, weights, actions(mdp), 1)
 policy1 = RandomPolicy(mdp)
@@ -42,11 +42,7 @@ ui = @manipulate for frame_index = 1: n_steps(history) + 1
 end
 body!(w, ui) # send the widget in the window and you can interact with it
 
-global eval_reward = 0.0
-for frame_index = 1: n_steps(history) + 1
-    global eval_reward += POMDPs.reward(mdp, history.state_hist[frame_index], LatLonAccel(0.0, 0.0), history.state_hist[frame_index])
-end
-@show eval_reward
+@show undiscounted_reward(history)
 
 @show reachgoal(history.state_hist[n_steps(history)], mdp.goal_pos)
 @show reachgoal(history.state_hist[end], mdp.goal_pos)

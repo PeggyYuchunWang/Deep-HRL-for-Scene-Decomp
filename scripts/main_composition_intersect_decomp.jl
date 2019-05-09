@@ -9,22 +9,11 @@ include("../src/utils/value_decomp.jl")
 mdp = DrivingCombinedMDP()
 lc_mdp = DrivingMDP()
 in_mdp = DrivingIntersectMDP()
-simple_lc_policy = RandomPolicy(lc_mdp)
-simple_in_policy = RandomPolicy(in_mdp)
-# @load "policies/simple_lanechange_policy.jld2" policy
-@load "policies/simple_lanechange_policy_rewardchange.jld2" policy
-simple_lc_policy = policy
-@load "policies/simple_intersection_policy.jld2" policy
-# @load "policies/simple_intersection_policy_rewardchange.jld2" policy
-simple_in_policy = policy
 
-# weights = getnetwork(policy)
-# @save "weights/comp_policy_weights.jld2" weights
-# @load "weights/comp_policy_weights.jld2" weights
-# policy = NNPolicy(mdp, weights, actions(mdp), 1)
-
-# @show simple_lc_policy
-getnetwork(simple_lc_policy)
+@load "weights/simple_lanechange_policy_weights_test6.jld2" weights
+simple_lc_policy = NNPolicy(lc_mdp, weights, actions(lc_mdp), 1)
+@load "weights/simple_intersection_policy_weights_test6.jld2" weights
+simple_in_policy = NNPolicy(in_mdp, weights, actions(in_mdp), 1)
 
 s0 = POMDPs.initialstate(mdp, MersenneTwister(1))
 s_lc, s_rt = decompose(s0)
@@ -51,11 +40,7 @@ ui = @manipulate for frame_index = 1: n_steps(history) + 1
 end
 body!(w, ui) # send the widget in the window and you can interact with it
 
-global eval_reward = 0.0
-for frame_index = 1: n_steps(history) + 1
-    global eval_reward += POMDPs.reward(mdp, history.state_hist[frame_index], LatLonAccel(0.0, 0.0), history.state_hist[frame_index])
-end
-@show eval_reward
+@show undiscounted_reward(history)
 
 @show reachgoal(history.state_hist[n_steps(history)], mdp.goal_pos)
 @show reachgoal(history.state_hist[end], mdp.goal_pos)

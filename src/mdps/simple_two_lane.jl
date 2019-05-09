@@ -12,7 +12,8 @@ include("../AutomotiveHRLSceneDecomp.jl")
     ego_id::Int64 = 1
     n_cars::Int64 = 3
     models::Dict{Int, DriverModel} = Dict()
-    goal_pos::Frenet = Frenet(roadway[LaneTag(1,2)], road_length)
+    goal_lane::LaneTag = LaneTag(1,2)
+    goal_pos::Frenet = get_end_frenet(roadway, goal_lane)
     speed_limit::Float64 = 15.0
     lane_width::Float64 = DEFAULT_LANE_WIDTH
 end

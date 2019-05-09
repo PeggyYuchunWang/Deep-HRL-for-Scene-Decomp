@@ -17,19 +17,11 @@ function off_road(s::Scene, mdp::MDP)
     ego = s[findfirst(mdp.ego_id, s)]
     if abs(ego.state.posF.t) > DEFAULT_LANE_WIDTH/2
         return true
-    # elseif ego.state.posF.s >= mdp.road_length
+    # elseif abs(ego.state.posF.s - mdp.goal_pos.s) >= .01 && abs(mdp.goal_pos.t - ego.state.posF.t) >= DEFAULT_LANE_WIDTH/2-.25
     #     return true
     end
     return false
 end
-
-# function off_lane(s::Scene, mdp::MDP)
-#     ego = s[findfirst(mdp.ego_id, s)]
-#     if ego.state.posF.roadind.tag != LaneTag(4, 1)
-#         return true
-#     end
-#     return false
-# end
 
 function distance(s::Scene, mdp::MDP)
     ego = s[findfirst(mdp.ego_id, s)]
@@ -48,7 +40,7 @@ function reachgoal(s::Scene, mdp::MDP)
     goal_lane = mdp.roadway[mdp.goal_pos.roadind.tag]
     ego_proj = proj(ego.state.posG, goal_lane, mdp.roadway)
     ego_proj = Frenet(ego_proj, mdp.roadway)
-    if abs(mdp.goal_pos.s-ego_proj.s) <= 1.0 && abs(mdp.goal_pos.t-ego_proj.t) <= DEFAULT_LANE_WIDTH/2-.25
+    if abs(mdp.goal_pos.s-ego_proj.s) <= 0.5 && abs(mdp.goal_pos.t-ego_proj.t) <= DEFAULT_LANE_WIDTH/4
         return true
     end
     return false
