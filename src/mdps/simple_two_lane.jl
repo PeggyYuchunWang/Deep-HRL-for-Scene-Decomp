@@ -14,6 +14,7 @@ include("../AutomotiveHRLSceneDecomp.jl")
     models::Dict{Int, DriverModel} = Dict()
     goal_pos::Frenet = Frenet(roadway[LaneTag(1,2)], road_length)
     speed_limit::Float64 = 15.0
+    lane_width::Float64 = DEFAULT_LANE_WIDTH
 end
 
 const LAT_LON_ACTIONS = [LatLonAccel(y, x) for x in -4:1.0:3 for y in -1:0.1:1]
@@ -76,32 +77,32 @@ function POMDPs.convert_s(tv::Type{V}, s::Scene, mdp::DrivingMDP) where V<:Abstr
             push!(other_vehicles, veh.state)
         end
     end
-    svec = Float64[ego.state.posF.s/mdp.road_length, ego.state.v/20.0, laneego...]
+    svec = Float64[ego.state.posF.s/mdp.road_length, ego.state.posF.t/mdp.lane_width, ego.state.v/mdp.speed_limit, laneego...]
     for veh in other_vehicles
         push!(svec, veh.posF.s/mdp.road_length)
-        push!(svec, veh.v/20.0)
+        push!(svec, veh.posF.t/mdp.lane_width)
+        push!(svec, veh.v/mdp.speed_limit)
         laneveh = Flux.onehot(veh.posF.roadind.tag.lane,[1,2])
         push!(svec, laneveh...)
     end
     return svec
 end
 
+# each vec has posF.s, posF.t, state.v, Lane1, Lane2
 function POMDPs.convert_s(ts::Type{Scene}, v::V, mdp::DrivingMDP) where V<:AbstractArray
     scene = Scene()
     def = VehicleDef()
 
-    lane1 = v[3] == 1 ? LaneTag(1,1) : LaneTag(1,2)
-    state1 = VehicleState(Frenet(mdp.roadway[lane1], v[1]*mdp.road_length), mdp.roadway, v[2]*20.0)
+    lane1 = v[4] == 1 ? LaneTag(1,1) : LaneTag(1,2)
+    state1 = VehicleState(Frenet(mdp.roadway[lane1], v[1]*mdp.road_length, v[2]*mdp.lane_width), mdp.roadway, v[3]*mdp.speed_limit)
     veh1 = Entity(state1, def, mdp.ego_id)
 
-
-    lane2 = v[7] == 1 ? LaneTag(1,1) : LaneTag(1,2)
-    state2 = VehicleState(Frenet(mdp.roadway[lane2], v[5]*mdp.road_length), mdp.roadway, v[6]*20.0)
+    lane2 = v[9] == 1 ? LaneTag(1,1) : LaneTag(1,2)
+    state2 = VehicleState(Frenet(mdp.roadway[lane2], v[6]*mdp.road_length, v[7]*mdp.lane_width), mdp.roadway, v[8]*mdp.speed_limit)
     veh2 = Entity(state2, def, 2)
 
-
-    lane3 = v[11] == 1 ? LaneTag(1,1) : LaneTag(1,2)
-    state3 = VehicleState(Frenet(mdp.roadway[lane3], v[9]*mdp.road_length), mdp.roadway, v[10]*20.0)
+    lane3 = v[14] == 1 ? LaneTag(1,1) : LaneTag(1,2)
+    state3 = VehicleState(Frenet(mdp.roadway[lane3], v[11]*mdp.road_length, v[12]*mdp.lane_width), mdp.roadway, v[13]*mdp.speed_limit)
     veh3 = Entity(state3, def, 3)
 
     push!(scene, veh1)

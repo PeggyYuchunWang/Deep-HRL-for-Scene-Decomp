@@ -18,6 +18,11 @@ simple_lc_policy = policy
 # @load "policies/simple_intersection_policy_rewardchange.jld2" policy
 simple_in_policy = policy
 
+# weights = getnetwork(policy)
+# @save "weights/comp_policy_weights.jld2" weights
+# @load "weights/comp_policy_weights.jld2" weights
+# policy = NNPolicy(mdp, weights, actions(mdp), 1)
+
 # @show simple_lc_policy
 getnetwork(simple_lc_policy)
 
@@ -39,7 +44,10 @@ carcolors[3] = colorant"green"
 
 w = Window() # this should open a window
 ui = @manipulate for frame_index = 1: n_steps(history) + 1
-     AutoViz.render(history.state_hist[frame_index], mdp.roadway, cam=FitToContentCamera(), car_colors=carcolors)
+    d = distance(history.state_hist[frame_index], mdp)
+    string_d = string("distance: ", d)
+    text_overlay = TextOverlay(text=[string_d], font_size=30, pos = VecE2(50.0, 100.0))
+    AutoViz.render(history.state_hist[frame_index], mdp.roadway, [text_overlay], cam=FitToContentCamera(), car_colors=carcolors)
 end
 body!(w, ui) # send the widget in the window and you can interact with it
 

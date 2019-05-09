@@ -37,7 +37,7 @@ function distance(s::Scene, mdp::MDP)
     road_lane = mdp.roadway[goal.roadind.tag]
     ego_proj = proj(ego.state.posG, road_lane, mdp.roadway)
     ego_proj = Frenet(ego_proj, mdp.roadway)
-    d = abs(goal.s - ego_proj.s)
+    d = abs(goal.s - ego_proj.s) + abs(goal.t - ego_proj.t)
     # d = norm(VecE2(goal - ego.state.posG))
     return d
 end

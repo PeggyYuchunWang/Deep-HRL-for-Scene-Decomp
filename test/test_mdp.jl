@@ -2,7 +2,6 @@ include("../src/AutomotiveHRLSceneDecomp.jl")
 include("../src/mdps/simple_two_lane.jl")
 include("../src/utils/helpers.jl")
 
-
 roadway = gen_straight_roadway(2, 100.0)
 ego_id = 1
 
