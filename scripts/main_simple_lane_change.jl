@@ -18,7 +18,7 @@ policy = solve(solver, mdp)
 # policy = RandomPolicy(mdp)
 # @load "policies/simple_lanechange_policy.jld2" policy
 # @load "policies/simple_lanechange_policy_rewardchange.jld2" policy
-@show weights = getnetwork(policy)
+weights = getnetwork(policy)
 
 @save "weights/simple_lanechange_policy_weights_final1.jld2" weights
 @load "weights/simple_lanechange_policy_weights_final1.jld2" weights

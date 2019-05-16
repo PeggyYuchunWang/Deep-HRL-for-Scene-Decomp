@@ -77,9 +77,11 @@ nticks = 150
 rec = SceneRecord(nticks+1, timestep)
 simulate!(rec, scene1, roadway, models, nticks)
 
+lane_overlay = LaneOverlay(roadway[LaneTag(1,1)], RGBA(0.0,0.0,1.0,0.5))
+
 w = Window() # this should open a window
 ui = @manipulate for frame_index in 1 : nframes(rec)
-     AutoViz.render(rec[frame_index-nframes(rec)], roadway, cam=FitToContentCamera(), car_colors=carcolors)
+     AutoViz.render(rec[frame_index-nframes(rec)], roadway, [lane_overlay], cam=FitToContentCamera(), car_colors=carcolors)
 end
 body!(w, ui) # send the widget in the window and you can interact with it
 

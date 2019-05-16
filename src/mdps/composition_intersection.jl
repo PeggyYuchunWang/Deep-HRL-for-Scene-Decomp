@@ -115,8 +115,15 @@ function POMDPs.convert_s(ts::Type{Scene}, v::V, mdp::DrivingCombinedMDP) where 
 end
 
 function POMDPs.isterminal(mdp::DrivingCombinedMDP, s::Scene)
+    wrong_lanetag = LaneTag(1,1)
+    wrong_lane = mdp.roadway[wrong_lanetag]
     ego = s[findfirst(mdp.ego_id, s)]
+    ego_proj = proj(ego.state.posG, wrong_lane, mdp.roadway)
+    ego_proj = Frenet(ego_proj, mdp.roadway)
+    wrong_lane_pos = Frenet(wrong_lane, get_end(wrong_lane))
     if reachgoal(s, mdp.goal_pos) || collision_helper(s, mdp) || off_road(s, mdp)
+        return true
+    elseif abs(wrong_lane_pos.s-ego_proj.s) <= DEFAULT_LANE_WIDTH/2 && abs(wrong_lane_pos.t-ego_proj.t) <= DEFAULT_LANE_WIDTH/4
         return true
     else
         return false

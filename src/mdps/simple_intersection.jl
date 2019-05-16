@@ -66,7 +66,7 @@ end
 
 function POMDPs.convert_s(tv::Type{V}, s::Scene, mdp::DrivingIntersectMDP) where V<:AbstractArray
     ego = s[findfirst(mdp.ego_id, s)]
-    laneego = ego.state.posF.roadind.tag.lane
+    laneego = ego.state.posF.roadind.tag.segment
     laneego = Flux.onehot(laneego,[1,2])
     other_vehicles = []
     for veh in s
@@ -79,7 +79,7 @@ function POMDPs.convert_s(tv::Type{V}, s::Scene, mdp::DrivingIntersectMDP) where
         push!(svec, veh.posF.s/mdp.road_length)
         push!(svec, veh.posF.t/mdp.lane_width)
         push!(svec, veh.v/mdp.speed_limit)
-        laneveh = Flux.onehot(veh.posF.roadind.tag.lane,[1,2])
+        laneveh = Flux.onehot(veh.posF.roadind.tag.segment,[1,2])
         push!(svec, laneveh...)
     end
     return svec

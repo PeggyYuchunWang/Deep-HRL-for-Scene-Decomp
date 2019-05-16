@@ -12,14 +12,14 @@ solver = DeepQLearningSolver(qnetwork = model, max_steps=300_000,
                              target_update_freq = 3000, eps_fraction=0.5, train_start=10000, buffer_size=400000,
                              eval_freq=10_000, # save_freq=10000,
                              # exploration_policy=masked_linear_epsilon_greedy(1_000_000, 0.5, 0.01),
-                             logdir="log/simple_intersection_debug1/", batch_size=128)
+                             logdir="log/simple_intersection_final1/", batch_size=128)
 
 # @load "policies/simple_intersection_policy.jld2" policy
 # @load "policies/simple_intersection_policy_rewardchange.jld2" policy
 policy = solve(solver, mdp)
-# weights = getnetwork(policy)
-@save "weights/simple_intersection_policy_weights_debug1.jld2" weights
-@load "weights/simple_intersection_policy_weights_debug1.jld2" weights
+weights = getnetwork(policy)
+@save "weights/simple_intersection_policy_weights_final1.jld2" weights
+@load "weights/simple_intersection_policy_weights_final1.jld2" weights
 policy = NNPolicy(mdp, weights, actions(mdp), 1)
 # policy1 = RandomPolicy(mdp)
 # policy1 = FunctionPolicy(s -> actions(mdp)[LatLonAccel(0.0, 0.0)])
