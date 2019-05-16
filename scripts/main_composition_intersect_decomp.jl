@@ -10,9 +10,9 @@ mdp = DrivingCombinedMDP()
 lc_mdp = DrivingMDP()
 in_mdp = DrivingIntersectMDP()
 
-@load "weights/simple_lanechange_policy_weights_test6.jld2" weights
+@load "weights/simple_lanechange_policy_weights_final1.jld2" weights
 simple_lc_policy = NNPolicy(lc_mdp, weights, actions(lc_mdp), 1)
-@load "weights/simple_intersection_policy_weights_test6.jld2" weights
+@load "weights/simple_intersection_policy_weights_final1.jld2" weights
 simple_in_policy = NNPolicy(in_mdp, weights, actions(in_mdp), 1)
 
 s0 = POMDPs.initialstate(mdp, MersenneTwister(1))
