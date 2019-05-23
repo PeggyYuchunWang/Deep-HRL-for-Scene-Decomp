@@ -1,10 +1,10 @@
 include("../src/AutomotiveHRLSceneDecomp.jl")
-include("../src/mdps/simple_two_lane.jl")
+include("../src/mdps/simple_two_lane_stochastic.jl")
 include("../src/utils/helpers.jl")
 # using AutomotiveHRLSceneDecomp
 
-mdp = DrivingMDP()
-model = Chain(Dense(15, 32, relu), Dense(32, 32, relu), Dense(32, n_actions(mdp)))
+mdp = DrivingStochasticMDP()
+model = Chain(Dense(30, 64, relu), Dense(64, 64, relu), Dense(64, n_actions(mdp)))
 
 solver = DeepQLearningSolver(qnetwork = model, max_steps=300_000,
                              learning_rate=0.001,log_freq=500,
