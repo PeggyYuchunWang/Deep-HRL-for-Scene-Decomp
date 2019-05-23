@@ -2,7 +2,7 @@ include("../AutomotiveHRLSceneDecomp.jl")
 # using AutomotiveHRLSceneDecomp
 
 # state = ego vehicle state, action = tuple(long acceleration, steering)
-@with_kw struct DrivingMDP <: MDP{Scene, LatLonAccel} # MDP{State, Action}
+@with_kw mutable struct DrivingMDP <: MDP{Scene, LatLonAccel} # MDP{State, Action}
     r_goal::Float64 = 1.0 # reward for reaching goal (default 1)
     discount_factor::Float64 = 0.9 # discount
     cost::Float64 = -1.0
@@ -10,6 +10,7 @@ include("../AutomotiveHRLSceneDecomp.jl")
     roadway::Roadway = gen_straight_roadway(2, road_length)
     delta_t::Float64 = 0.5
     ego_id::Int64 = 1
+    max_cars::Int64 = 6
     n_cars::Int64 = 3
     models::Dict{Int, DriverModel} = Dict()
     goal_lane::LaneTag = LaneTag(1,2)
@@ -19,10 +20,6 @@ include("../AutomotiveHRLSceneDecomp.jl")
 end
 
 const LAT_LON_ACTIONS = [LatLonAccel(y, x) for x in -4:1.0:3 for y in -1:0.1:1]
-
-# function POMDPs.actions(mdp::DrivingMDP)
-#     return [LatLonAccel(y, x) for x in -2:1.0:2 for y in -1:0.1:1]
-# end
 
 function POMDPs.actions(mdp::DrivingMDP)
     return LAT_LON_ACTIONS
@@ -35,22 +32,36 @@ function POMDPs.initialstate(mdp::DrivingMDP, rng::AbstractRNG)
     def = VehicleDef()
     state1 = VehicleState(Frenet(mdp.roadway[LaneTag(1,1)],0.0), mdp.roadway, 10.0)
     veh1 = Entity(state1, def, mdp.ego_id)
+    push!(scene, veh1)
+
+    mdp.n_cars = rand(1:mdp.max_cars) # ego vehicle always first
 
     mdp.models[1] = AutomotivePOMDPs.EgoDriver(LatLonAccel(0.0, 0.0))
-    mdp.models[2] = AutomotivePOMDPs.EgoDriver(LatLonAccel(0.0, 0.0))
-    mdp.models[3] = AutomotivePOMDPs.EgoDriver(LatLonAccel(0.0, 0.0))
-    # mdp.models[2] = Tim2DDriver(mdp.timestep, rec=SceneRecord(1, mdp.timestep, mdp.n_cars))
-    # mdp.models[3] = Tim2DDriver(mdp.timestep, rec=SceneRecord(1, mdp.timestep, mdp.n_cars))
+    for i = 2:mdp.max_cars
+        if i <= mdp.n_cars
+            mdp.models[i] = Tim2DDriver(mdp.delta_t, rec=SceneRecord(1, mdp.delta_t))
+            initial_speed = 10.0
+            state2 = VehicleState(Frenet(mdp.roadway[LaneTag(1,2)], 0.0), mdp.roadway, initial_speed)
+            veh2 = Entity(state2, def, i)
+            push!(scene, veh2)
+        else
+            # mdp.models[keys] = AutomotivePOMDPs.EgoDriver(LatLonAccel(0.0, 0.0))
+        end
+    end
+    # mdp.models[2] = AutomotivePOMDPs.EgoDriver(LatLonAccel(0.0, 0.0))
+    # mdp.models[3] = AutomotivePOMDPs.EgoDriver(LatLonAccel(0.0, 0.0))
+    # mdp.models[2] = Tim2DDriver(mdp.delta_t, rec=SceneRecord(1, mdp.delta_t, mdp.n_cars))
+    # mdp.models[3] = Tim2DDriver(mdp.delta_t, rec=SceneRecord(1, mdp.delta_t, mdp.n_cars))
+    #
+    # state2 = VehicleState(Frenet(mdp.roadway[LaneTag(1,2)], 0.0), mdp.roadway, 10.0)
+    # veh2 = Entity(state2, def, 2)
+    #
+    # state3 = VehicleState(Frenet(mdp.roadway[LaneTag(1,2)], 10.0), mdp.roadway, 10.0)
+    # veh3 = Entity(state3, def, 3)
+    #
+    # push!(scene, veh2)
+    # push!(scene, veh3)
 
-    state2 = VehicleState(Frenet(mdp.roadway[LaneTag(1,2)], 0.0), mdp.roadway, 10.0)
-    veh2 = Entity(state2, def, 2)
-
-    state3 = VehicleState(Frenet(mdp.roadway[LaneTag(1,2)], 10.0), mdp.roadway, 10.0)
-    veh3 = Entity(state3, def, 3)
-
-    push!(scene, veh1)
-    push!(scene, veh2)
-    push!(scene, veh3)
     return scene
 end
 
@@ -73,18 +84,28 @@ function POMDPs.convert_s(tv::Type{V}, s::Scene, mdp::DrivingMDP) where V<:Abstr
     laneego = ego.state.posF.roadind.tag.lane
     laneego = Flux.onehot(laneego,[1,2])
     other_vehicles = []
+    svec = Float64[ego.state.posF.s/mdp.road_length, ego.state.posF.t/mdp.lane_width, ego.state.v/mdp.speed_limit, laneego...]
     for veh in s
         if veh.id != mdp.ego_id
             push!(other_vehicles, veh.state)
         end
     end
-    svec = Float64[ego.state.posF.s/mdp.road_length, ego.state.posF.t/mdp.lane_width, ego.state.v/mdp.speed_limit, laneego...]
     for veh in other_vehicles
         push!(svec, veh.posF.s/mdp.road_length)
         push!(svec, veh.posF.t/mdp.lane_width)
         push!(svec, veh.v/mdp.speed_limit)
         laneveh = Flux.onehot(veh.posF.roadind.tag.lane,[1,2])
         push!(svec, laneveh...)
+    end
+    if mdp.n_cars < mdp.max_cars
+        offset = mdp.max_cars - mdp.n_cars
+        for j = 1:offset
+            push!(svec, -1)
+            push!(svec, -1)
+            push!(svec, -1)
+            laneveh = [-1, -1]
+            push!(svec, laneveh...)
+        end
     end
     return svec
 end
@@ -93,22 +114,33 @@ end
 function POMDPs.convert_s(ts::Type{Scene}, v::V, mdp::DrivingMDP) where V<:AbstractArray
     scene = Scene()
     def = VehicleDef()
+    n_params = 5
 
     lane1 = v[4] == 1 ? LaneTag(1,1) : LaneTag(1,2)
     state1 = VehicleState(Frenet(mdp.roadway[lane1], v[1]*mdp.road_length, v[2]*mdp.lane_width), mdp.roadway, v[3]*mdp.speed_limit)
     veh1 = Entity(state1, def, mdp.ego_id)
 
-    lane2 = v[9] == 1 ? LaneTag(1,1) : LaneTag(1,2)
-    state2 = VehicleState(Frenet(mdp.roadway[lane2], v[6]*mdp.road_length, v[7]*mdp.lane_width), mdp.roadway, v[8]*mdp.speed_limit)
-    veh2 = Entity(state2, def, 2)
-
-    lane3 = v[14] == 1 ? LaneTag(1,1) : LaneTag(1,2)
-    state3 = VehicleState(Frenet(mdp.roadway[lane3], v[11]*mdp.road_length, v[12]*mdp.lane_width), mdp.roadway, v[13]*mdp.speed_limit)
-    veh3 = Entity(state3, def, 3)
-
     push!(scene, veh1)
-    push!(scene, veh2)
-    push!(scene, veh3)
+
+    for i = 2:mdp.max_cars
+        if i < mdp.n_cars
+            lane2 = v[(i-1)*n_params + 4] == 1 ? LaneTag(1,1) : LaneTag(1,2)
+            state2 = VehicleState(Frenet(mdp.roadway[lane2], v[(i-1)*n_params + 1]*mdp.road_length, v[(i-1)*n_params + 2]*mdp.lane_width), mdp.roadway, v[(i-1)*n_params + 3]*mdp.speed_limit)
+            veh2 = Entity(state2, def, i)
+            push!(scene, veh2)
+        end
+    end
+    # lane2 = v[9] == 1 ? LaneTag(1,1) : LaneTag(1,2)
+    # state2 = VehicleState(Frenet(mdp.roadway[lane2], v[6]*mdp.road_length, v[7]*mdp.lane_width), mdp.roadway, v[8]*mdp.speed_limit)
+    # veh2 = Entity(state2, def, 2)
+    #
+    # lane3 = v[14] == 1 ? LaneTag(1,1) : LaneTag(1,2)
+    # state3 = VehicleState(Frenet(mdp.roadway[lane3], v[11]*mdp.road_length, v[12]*mdp.lane_width), mdp.roadway, v[13]*mdp.speed_limit)
+    # veh3 = Entity(state3, def, 3)
+    #
+    # push!(scene, veh1)
+    # push!(scene, veh2)
+    # push!(scene, veh3)
 
     return scene
 end
@@ -130,9 +162,6 @@ function POMDPs.reward(mdp::DrivingMDP, s::Scene, a::LatLonAccel, sp::Scene)
         return 1.0
     else
         r = -0.01*distance(sp, mdp)/mdp.road_length
-        if off_road(sp, mdp)
-#             r -= -0.01
-        end
         return r
     end
 end

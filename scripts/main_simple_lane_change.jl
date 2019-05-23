@@ -4,7 +4,7 @@ include("../src/utils/helpers.jl")
 # using AutomotiveHRLSceneDecomp
 
 mdp = DrivingMDP()
-model = Chain(Dense(15, 32, relu), Dense(32, 32, relu), Dense(32, n_actions(mdp)))
+model = Chain(Dense(30, 64, relu), Dense(64, 64, relu), Dense(64, n_actions(mdp)))
 
 solver = DeepQLearningSolver(qnetwork = model, max_steps=300_000,
                              learning_rate=0.001,log_freq=500,
@@ -13,32 +13,26 @@ solver = DeepQLearningSolver(qnetwork = model, max_steps=300_000,
                              eval_freq=10_000,
                              # exploration_policy=masked_linear_epsilon_greedy(1_000_000, 0.5, 0.01),
                              # evaluation_policy=masked_linear_epsilon_greedy(1_000_000, 0., 0.),
-                             logdir="log/simple_lane_final1/", batch_size=128)
+                             logdir="log/simple_lane_stochastic1/", batch_size=128)
 policy = solve(solver, mdp)
 # policy = RandomPolicy(mdp)
-# @load "policies/simple_lanechange_policy.jld2" policy
-# @load "policies/simple_lanechange_policy_rewardchange.jld2" policy
 weights = getnetwork(policy)
 
-@save "weights/simple_lanechange_policy_weights_final1.jld2" weights
-@load "weights/simple_lanechange_policy_weights_final1.jld2" weights
+# @save "weights/simple_lanechange_policy_weights_stochastic1.jld2" weights
+# @load "weights/simple_lanechange_policy_weights_stochastic1.jld2" weights
 
-# BSON.@load "log/simple_lane_test7/qnetwork.bson" qnetwork
-# Flux.loadparams!(model, qnetwork)
 policy = NNPolicy(mdp, weights, actions(mdp), 1)
 
-# policy1 = FunctionPolicy(s -> actions(mdp)[LatLonAccel(0.0, 0.0)])
-policy1 = RandomPolicy(mdp)
+policy1 = FunctionPolicy(s -> LatLonAccel(0., 0.))
+# policy1 = RandomPolicy(mdp)
 
 hr = HistoryRecorder(max_steps=100)
-history = simulate(hr, mdp, policy, POMDPs.initialstate(mdp, MersenneTwister(1)));
+history = simulate(hr, mdp, policy1, POMDPs.initialstate(mdp, MersenneTwister(1)));
 
 carcolors = Dict{Int,Colorant}()
 carcolors[1] = colorant"red"
 carcolors[2] = colorant"green"
 carcolors[3] = colorant"green"
-
-# TODO: sanity check, run random policy with scene
 
 w = Window() # this should open a window
 ui = @manipulate for frame_index = 1: n_steps(history)+1
