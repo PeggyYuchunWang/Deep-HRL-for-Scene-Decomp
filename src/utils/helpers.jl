@@ -51,7 +51,7 @@ function reachgoal(s::Scene, goal_pos::Frenet)
     goal_lane = mdp.roadway[goal_pos.roadind.tag]
     ego_proj = proj(ego.state.posG, goal_lane, mdp.roadway)
     ego_proj = Frenet(ego_proj, mdp.roadway)
-    if abs(goal_pos.s-ego_proj.s) <= DEFAULT_LANE_WIDTH && abs(goal_pos.t-ego_proj.t) <= DEFAULT_LANE_WIDTH/3
+    if abs(goal_pos.s-ego_proj.s) <= DEFAULT_LANE_WIDTH/2-.25 && abs(goal_pos.t-ego_proj.t) <= DEFAULT_LANE_WIDTH/3
         return true
     end
     return false

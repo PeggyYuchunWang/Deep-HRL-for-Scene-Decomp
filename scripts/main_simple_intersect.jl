@@ -16,9 +16,9 @@ solver = DeepQLearningSolver(qnetwork = model, max_steps=300_000,
 
 # @load "policies/simple_intersection_policy.jld2" policy
 # @load "policies/simple_intersection_policy_rewardchange.jld2" policy
-policy = solve(solver, mdp)
-weights = getnetwork(policy)
-@save "weights/simple_intersection_policy_weights_final1.jld2" weights
+# policy = solve(solver, mdp)
+# weights = getnetwork(policy)
+# @save "weights/simple_intersection_policy_weights_final1.jld2" weights
 @load "weights/simple_intersection_policy_weights_final1.jld2" weights
 policy = NNPolicy(mdp, weights, actions(mdp), 1)
 # policy1 = RandomPolicy(mdp)

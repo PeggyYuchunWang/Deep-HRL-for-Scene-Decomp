@@ -13,21 +13,19 @@ solver = DeepQLearningSolver(qnetwork = model, max_steps=300_000,
                              eval_freq=10_000,
                              # exploration_policy=masked_linear_epsilon_greedy(1_000_000, 0.5, 0.01),
                              # evaluation_policy=masked_linear_epsilon_greedy(1_000_000, 0., 0.),
-                             logdir="log/simple_lane_stochastic1/", batch_size=128)
-@show policy = solve(solver, mdp)
+                             logdir="log/simple_lane_final2/", batch_size=128)
+# policy = solve(solver, mdp)
 # policy = RandomPolicy(mdp)
-@show weights = getnetwork(policy)
+# weights = getnetwork(policy)
 
 # @save "weights/simple_lanechange_policy_weights_stochastic1.jld2" weights
-# @load "weights/simple_lanechange_policy_weights_stochastic1.jld2" weights
+@load "weights/simple_lanechange_policy_weights_final1.jld2" weights
 
 policy = NNPolicy(mdp, weights, actions(mdp), 1)
 
 policy1 = FunctionPolicy(s -> LatLonAccel(0., 0.))
 # policy1 = RandomPolicy(mdp)
 
-
-@load "weights/simple_lanechange_policy_weights_stochastic1.jld2" weights
 hr = HistoryRecorder(max_steps=100)
 history = simulate(hr, mdp, policy1, POMDPs.initialstate(mdp, MersenneTwister(3)));
 
@@ -35,9 +33,6 @@ carcolors = Dict{Int,Colorant}()
 carcolors[1] = colorant"red"
 carcolors[2] = colorant"green"
 carcolors[3] = colorant"green"
-carcolors[4] = colorant"green"
-carcolors[5] = colorant"green"
-carcolors[6] = colorant"green"
 
 w = Window() # this should open a window
 ui = @manipulate for frame_index = 1: n_steps(history)+1
@@ -57,8 +52,8 @@ body!(w, ui) # send the widget in the window and you can interact with it
 @show POMDPs.reward(mdp, history.state_hist[n_steps(history)], LatLonAccel(0.0, 0.0), history.state_hist[n_steps(history)])
 @show POMDPs.reward(mdp, history.state_hist[end], LatLonAccel(0.0, 0.0), history.state_hist[end])
 
-@save "weights/simple_lanechange_policy_weights_stochastic1.jld2" weights
-@load "weights/simple_lanechange_policy_weights_stochastic1.jld2" weights
+# @save "weights/simple_lanechange_policy_weights_stochastic1.jld2" weights
+# @load "weights/simple_lanechange_policy_weights_stochastic1.jld2" weights
 
 # @save "policies/simple_lanechange_policy_next.jld2" policy
 # @load "policies/simple_lanechange_policy_next.jld2" policy

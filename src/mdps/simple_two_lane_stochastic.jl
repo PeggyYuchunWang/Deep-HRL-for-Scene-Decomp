@@ -42,7 +42,8 @@ function POMDPs.initialstate(mdp::DrivingStochasticMDP, rng::AbstractRNG)
         if i <= mdp.n_cars
             mdp.models[i] = Tim2DDriver(mdp.delta_t, rec=SceneRecord(1, mdp.delta_t))
             initial_speed = rand(1:mdp.speed_limit)
-            state2 = VehicleState(Frenet(mdp.roadway[LaneTag(1,2)], 0.0), mdp.roadway, initial_speed)
+            initial_position = (i-1)*10.0
+            state2 = VehicleState(Frenet(mdp.roadway[LaneTag(1,2)], initial_position), mdp.roadway, initial_speed)
             veh2 = Entity(state2, def, i)
             push!(scene, veh2)
         end

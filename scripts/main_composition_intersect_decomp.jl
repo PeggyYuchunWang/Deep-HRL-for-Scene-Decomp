@@ -18,8 +18,20 @@ simple_in_policy = NNPolicy(in_mdp, weights, actions(in_mdp), 1)
 s0 = POMDPs.initialstate(mdp, MersenneTwister(1))
 s_lc, s_rt = decompose(s0)
 
+# TODO: Visualization
 vals = actionvalues(simple_lc_policy, s_lc) .+ actionvalues(simple_in_policy, s_rt)
 compPolicy = ComposedPolicy(simple_lc_policy, simple_in_policy, actions(mdp))
+@show actionvalues(compPolicy)
+'''
+For s in compPolicy
+get total actionvalue
+decompose to s_lc and s_rt
+get actionvalue of s_lc, s_rt
+proportion of weight is actionval of s_lc/total actionval
+goes from 0 to 1 - heatmap from blue to red
+plot color overlay on scene
+'''
+
 
 policy1 = RandomPolicy(mdp)
 # policy1 = FunctionPolicy(s -> actions(mdp)[LatLonAccel(0.0, 0.0)])

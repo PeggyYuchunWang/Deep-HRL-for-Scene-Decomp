@@ -14,13 +14,14 @@ solver = DeepQLearningSolver(qnetwork = model, max_steps=300_000,
                              # exploration_policy=masked_linear_epsilon_greedy(1_000_000, 0.5, 0.01),
                              # evaluation_policy=masked_linear_epsilon_greedy(1_000_000, 0., 0.),
                              logdir="log/simple_lane_stochastic1/", batch_size=128)
-@show policy = solve(solver, mdp)
+# @show policy = solve(solver, mdp)
 # policy = RandomPolicy(mdp)
-@show weights = getnetwork(policy)
+# @show weights = getnetwork(policy)
 
 # @save "weights/simple_lanechange_policy_weights_stochastic1.jld2" weights
 # @load "weights/simple_lanechange_policy_weights_stochastic1.jld2" weights
 
+@load "weights/simple_lanechange_policy_weights_stochastic1.jld2" weights
 policy = NNPolicy(mdp, weights, actions(mdp), 1)
 
 policy1 = FunctionPolicy(s -> LatLonAccel(0., 0.))

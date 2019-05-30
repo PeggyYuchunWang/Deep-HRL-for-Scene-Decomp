@@ -30,7 +30,7 @@ function decompose(s::Scene)
     rt_veh2 = Vehicle(rt_state2, def, 2)
     rt_state3 = VehicleState(B + polar(30.0,-π), rt_road, 10.0)
     rt_veh3 = Vehicle(rt_state2, def, 3)
-    lc_position = (ego.state.posF.s/98.)*100.
+    lc_position = (ego.state.posF.s/98.)*100. # normalize to 98
     if ego.state.posF.roadind.tag == LaneTag(3,1)
         lane_lc = LaneTag(1,2)
         lane_rt = LaneTag(2,1)
@@ -62,19 +62,11 @@ function POMDPPolicies.actionvalues(p::ComposedPolicy, s::Scene)
     return POMDPPolicies.actionvalues(p.lane_change_policy, s_lc) .+ actionvalues(p.intersect_policy, s_rt)
 end
 
-#decompose - can normalize, change length to 113
-
 function POMDPPolicies.actionvalues(p::ComposedPolicy, v::AbstractVector)
     mdp = DrivingCombinedMDP()
     scene = POMDPs.convert_s(v, mdp)
     return POMDPs.actionvalues(p, scene)
 end
-
-# function POMDPPolicies.actionvalues(p::ComposedPolicy, v::V) where V<:AbstractArray
-#     s_lc = v[1]
-#     s_in = v[2]
-#     return actionvalues(p.lane_change_policy, s_lc) .+ actionvalues(p.intersect_policy, s_in)
-# end
 
 function POMDPPolicies.action(p::ComposedPolicy, s::Scene)
     vals = POMDPPolicies.actionvalues(p, s)
