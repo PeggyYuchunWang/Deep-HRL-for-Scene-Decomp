@@ -14,14 +14,14 @@ solver = DeepQLearningSolver(qnetwork = model, max_steps=1_000_000,
                              # exploration_policy=masked_linear_epsilon_greedy(1_000_000, 0.5, 0.01),
                              logdir="log/simple_lane_right/", batch_size=128)
 
-policy = solve(solver, mdp)
+# policy = solve(solver, mdp)
 # @load "policies/simple_lanechange_right_policy.jld2" policy
 
 # policy1 = FunctionPolicy(s -> LatLonAccel(0., 0.))
 policy1 = RandomPolicy(mdp)
 
 hr = HistoryRecorder(max_steps=100)
-history = simulate(hr, mdp, policy, POMDPs.initialstate(mdp, MersenneTwister(1)));
+history = simulate(hr, mdp, policy1, POMDPs.initialstate(mdp, MersenneTwister(1)));
 
 carcolors = Dict{Int,Colorant}()
 carcolors[1] = colorant"red"
@@ -48,6 +48,6 @@ end
 @show n_steps(history)
 @show POMDPs.reward(mdp, history.state_hist[n_steps(history)], LatLonAccel(0.0, 0.0), history.state_hist[n_steps(history)])
 @show POMDPs.reward(mdp, history.state_hist[end], LatLonAccel(0.0, 0.0), history.state_hist[end])
-
-@save "policies/simple_lanechange_right_policy.jld2" policy
-@load "policies/simple_lanechange_right_policy.jld2" policy
+# 
+# @save "policies/simple_lanechange_right_policy.jld2" policy
+# @load "policies/simple_lanechange_right_policy.jld2" policy

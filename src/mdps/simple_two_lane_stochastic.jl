@@ -30,24 +30,25 @@ POMDPs.n_actions(mdp::DrivingStochasticMDP) = length(LAT_LON_ACTIONS)
 function POMDPs.initialstate(mdp::DrivingStochasticMDP, rng::AbstractRNG)
     scene = Scene()
     def = VehicleDef()
-    initial_speed = rand(1:mdp.speed_limit)
+    initial_speed = rand(rng, 1:mdp.speed_limit)
     state1 = VehicleState(Frenet(mdp.roadway[LaneTag(1,1)],0.0), mdp.roadway, initial_speed)
     veh1 = Entity(state1, def, mdp.ego_id)
     push!(scene, veh1)
 
-    mdp.n_cars = rand(1:mdp.max_cars) # ego vehicle always first
+    mdp.n_cars = 1
+    # mdp.n_cars = rand(rng, 1:mdp.max_cars) # ego vehicle always first
 
     mdp.models[1] = AutomotivePOMDPs.EgoDriver(LatLonAccel(0.0, 0.0))
-    for i = 2:mdp.max_cars
-        if i <= mdp.n_cars
-            mdp.models[i] = Tim2DDriver(mdp.delta_t, rec=SceneRecord(1, mdp.delta_t))
-            initial_speed = rand(1:mdp.speed_limit)
-            initial_position = (i-1)*10.0
-            state2 = VehicleState(Frenet(mdp.roadway[LaneTag(1,2)], initial_position), mdp.roadway, initial_speed)
-            veh2 = Entity(state2, def, i)
-            push!(scene, veh2)
-        end
-    end
+    # for i = 2:mdp.max_cars
+    #     if i <= mdp.n_cars
+    #         mdp.models[i] = Tim2DDriver(mdp.delta_t, rec=SceneRecord(1, mdp.delta_t))
+    #         initial_speed = rand(1:mdp.speed_limit)
+    #         initial_position = (i-1)*10.0
+    #         state2 = VehicleState(Frenet(mdp.roadway[LaneTag(1,2)], initial_position), mdp.roadway, initial_speed)
+    #         veh2 = Entity(state2, def, i)
+    #         push!(scene, veh2)
+    #     end
+    # end
     return scene
 end
 
@@ -76,23 +77,23 @@ function POMDPs.convert_s(tv::Type{V}, s::Scene, mdp::DrivingStochasticMDP) wher
             push!(other_vehicles, veh.state)
         end
     end
-    for veh in other_vehicles
-        push!(svec, veh.posF.s/mdp.road_length)
-        push!(svec, veh.posF.t/mdp.lane_width)
-        push!(svec, veh.v/mdp.speed_limit)
-        laneveh = Flux.onehot(veh.posF.roadind.tag.lane,[1,2])
-        push!(svec, laneveh...)
-    end
-    if mdp.n_cars < mdp.max_cars
-        offset = mdp.max_cars - mdp.n_cars
-        for j = 1:offset
-            push!(svec, -1)
-            push!(svec, -1)
-            push!(svec, -1)
-            laneveh = [-1, -1]
-            push!(svec, laneveh...)
-        end
-    end
+    # for veh in other_vehicles
+    #     push!(svec, veh.posF.s/mdp.road_length)
+    #     push!(svec, veh.posF.t/mdp.lane_width)
+    #     push!(svec, veh.v/mdp.speed_limit)
+    #     laneveh = Flux.onehot(veh.posF.roadind.tag.lane,[1,2])
+    #     push!(svec, laneveh...)
+    # end
+    # if mdp.n_cars < mdp.max_cars
+    #     offset = mdp.max_cars - mdp.n_cars
+    #     for j = 1:offset
+    #         push!(svec, -1)
+    #         push!(svec, -1)
+    #         push!(svec, -1)
+    #         laneveh = [-1, -1]
+    #         push!(svec, laneveh...)
+    #     end
+    # end
     return svec
 end
 
@@ -108,14 +109,14 @@ function POMDPs.convert_s(ts::Type{Scene}, v::V, mdp::DrivingStochasticMDP) wher
 
     push!(scene, veh1)
 
-    for i = 2:mdp.max_cars
-        if i < mdp.n_cars
-            lane2 = v[(i-1)*n_params + 4] == 1 ? LaneTag(1,1) : LaneTag(1,2)
-            state2 = VehicleState(Frenet(mdp.roadway[lane2], v[(i-1)*n_params + 1]*mdp.road_length, v[(i-1)*n_params + 2]*mdp.lane_width), mdp.roadway, v[(i-1)*n_params + 3]*mdp.speed_limit)
-            veh2 = Entity(state2, def, i)
-            push!(scene, veh2)
-        end
-    end
+    # for i = 2:mdp.max_cars
+    #     if i < mdp.n_cars
+    #         lane2 = v[(i-1)*n_params + 4] == 1 ? LaneTag(1,1) : LaneTag(1,2)
+    #         state2 = VehicleState(Frenet(mdp.roadway[lane2], v[(i-1)*n_params + 1]*mdp.road_length, v[(i-1)*n_params + 2]*mdp.lane_width), mdp.roadway, v[(i-1)*n_params + 3]*mdp.speed_limit)
+    #         veh2 = Entity(state2, def, i)
+    #         push!(scene, veh2)
+    #     end
+    # end
     return scene
 end
 

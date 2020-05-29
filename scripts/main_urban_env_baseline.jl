@@ -4,7 +4,7 @@ include("../src/utils/helpers.jl")
 # using AutomotiveHRLSceneDecomp
 
 mdp = DrivingUrbanMDP()
-model = Chain(Dense(51, 60, relu), Dense(60, 60, relu), Dense(60, n_actions(mdp)))
+model = Chain(Dense(54, 60, relu), Dense(60, 60, relu), Dense(60, n_actions(mdp)))
 
 solver = DeepQLearningSolver(qnetwork = model, max_steps=300_000,
                              learning_rate=0.001, log_freq=500,
@@ -17,16 +17,16 @@ solver = DeepQLearningSolver(qnetwork = model, max_steps=300_000,
 # @load "policies/composition_intersection_policy_baseline.jld2" policy
 # @load "policies/composition_intersection_policy_baseline_2.jld2" policy
 # @load "policies/composition_intersection_policy_baseline_rewardchange.jld2" policy
-policy = solve(solver, mdp)
-weights = getnetwork(policy)
-@save "weights/urban_env_baseline_policy_weights_final1.jld2" weights
-@load "weights/urban_env_baseline_policy_weights_final1.jld2" weights
-policy = NNPolicy(mdp, weights, actions(mdp), 1)
+# policy = solve(solver, mdp)
+# weights = getnetwork(policy)
+# @save "weights/urban_env_baseline_policy_weights_final1.jld2" weights
+# @load "weights/urban_env_baseline_policy_weights_final1.jld2" weights
+# policy = NNPolicy(mdp, weights, actions(mdp), 1)
 
 # policy1 = FunctionPolicy(s -> actions(mdp)[LatLonAccel(0.0, 0.0)])
 policy1 = RandomPolicy(mdp)
 hr = HistoryRecorder(max_steps=100)
-history = simulate(hr, mdp, policy, POMDPs.initialstate(mdp, MersenneTwister(1)));
+history = simulate(hr, mdp, policy1, POMDPs.initialstate(mdp, MersenneTwister(1)));
 
 carcolors = Dict{Int,Colorant}()
 carcolors[1] = colorant"red"

@@ -14,16 +14,16 @@ solver = DeepQLearningSolver(qnetwork = model, max_steps=100_000,
                              # exploration_policy=masked_linear_epsilon_greedy(1_000_000, 0.5, 0.01),
 
 # @load "policies/left_turn_lane_policy.jld2" policy
-policy = solve(solver, mdp)
-weights = getnetwork(policy)
-@save "weights/left_turn_lane_weights_final1.jld2" weights
-@load "weights/left_turn_lane_weights_final1.jld2" weights
-policy = NNPolicy(mdp, weights, actions(mdp), 1)
+# policy = solve(solver, mdp)
+# weights = getnetwork(policy)
+# @save "weights/left_turn_lane_weights_final1.jld2" weights
+# @load "weights/left_turn_lane_weights_final1.jld2" weights
+# policy = NNPolicy(mdp, weights, actions(mdp), 1)
 policy1 = RandomPolicy(mdp)
 # policy1 = FunctionPolicy(s -> LatLonAccel(0., 0.))
 # @show actions(mdp)
 hr = HistoryRecorder(max_steps=100)
-history = simulate(hr, mdp, policy, POMDPs.initialstate(mdp, MersenneTwister(1)));
+history = simulate(hr, mdp, policy1, POMDPs.initialstate(mdp, MersenneTwister(1)));
 
 carcolors = Dict{Int,Colorant}()
 carcolors[1] = colorant"red"

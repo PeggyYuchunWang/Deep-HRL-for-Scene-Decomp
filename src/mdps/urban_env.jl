@@ -34,13 +34,13 @@ function POMDPs.initialstate(mdp::DrivingUrbanMDP, rng::AbstractRNG)
     mdp.models[2] = AutomotivePOMDPs.EgoDriver(LatLonAccel(0.0, 0.0))
     mdp.models[3] = AutomotivePOMDPs.EgoDriver(LatLonAccel(0.0, 0.0))
 
-    state1 = VehicleState(Frenet(roadway[LaneTag(13,1)],0.0), roadway, 10.0)
+    state1 = VehicleState(Frenet(mdp.roadway[LaneTag(13,1)],0.0), mdp.roadway, 10.0)
     veh1 = Vehicle(state1, def, 1)
 
-    state2 = VehicleState(Frenet(roadway[LaneTag(1,2)],0.0), roadway, 10.0)
+    state2 = VehicleState(Frenet(mdp.roadway[LaneTag(1,2)],0.0), mdp.roadway, 10.0)
     veh2 = Vehicle(state2, def, 2)
 
-    state3 = VehicleState(Frenet(roadway[LaneTag(1,2)],10.0), roadway, 10.0)
+    state3 = VehicleState(Frenet(mdp.roadway[LaneTag(1,2)],10.0), mdp.roadway, 10.0)
     veh3 = Vehicle(state3, def, 3)
 
     push!(scene, veh1)
@@ -66,7 +66,7 @@ end
 function POMDPs.convert_s(tv::Type{V}, s::Scene, mdp::DrivingUrbanMDP) where V<:AbstractArray
     ego = s[findfirst(mdp.ego_id, s)]
     laneego = ego.state.posF.roadind.tag.segment
-    laneego = Flux.onehot(laneego,collect(1:14))
+    laneego = Flux.onehot(laneego,collect(1:15))
     other_vehicles = []
     for veh in s
         if veh.id != mdp.ego_id
@@ -78,7 +78,7 @@ function POMDPs.convert_s(tv::Type{V}, s::Scene, mdp::DrivingUrbanMDP) where V<:
         push!(svec, veh.posF.s/mdp.road_length)
         push!(svec, veh.posF.t/mdp.lane_width)
         push!(svec, veh.v/mdp.speed_limit)
-        laneveh = Flux.onehot(veh.posF.roadind.tag.segment, collect(1:14))
+        laneveh = Flux.onehot(veh.posF.roadind.tag.segment, collect(1:15))
         push!(svec, laneveh...)
     end
     return svec

@@ -4,7 +4,7 @@ include("../src/utils/helpers.jl")
 # using AutomotiveHRLSceneDecomp
 
 mdp = DrivingStochasticMDP()
-model = Chain(Dense(30, 64, relu), Dense(64, 64, relu), Dense(64, n_actions(mdp)))
+model = Chain(Dense(5, 64, relu), Dense(64, 64, relu), Dense(64, n_actions(mdp)))
 
 solver = DeepQLearningSolver(qnetwork = model, max_steps=300_000,
                              learning_rate=0.001,log_freq=500,
@@ -13,24 +13,22 @@ solver = DeepQLearningSolver(qnetwork = model, max_steps=300_000,
                              eval_freq=10_000,
                              # exploration_policy=masked_linear_epsilon_greedy(1_000_000, 0.5, 0.01),
                              # evaluation_policy=masked_linear_epsilon_greedy(1_000_000, 0., 0.),
-                             logdir="log/simple_lane_stochastic1/", batch_size=128)
-# @show policy = solve(solver, mdp)
+                             logdir="log/simple_lane_stochastic_debug4/", batch_size=32)
+
+policy = solve(solver, mdp)
 # policy = RandomPolicy(mdp)
-# @show weights = getnetwork(policy)
+weights = getnetwork(policy)
 
 # @save "weights/simple_lanechange_policy_weights_stochastic1.jld2" weights
 # @load "weights/simple_lanechange_policy_weights_stochastic1.jld2" weights
 
-@load "weights/simple_lanechange_policy_weights_stochastic1.jld2" weights
 policy = NNPolicy(mdp, weights, actions(mdp), 1)
 
 policy1 = FunctionPolicy(s -> LatLonAccel(0., 0.))
 # policy1 = RandomPolicy(mdp)
-
-
-@load "weights/simple_lanechange_policy_weights_stochastic1.jld2" weights
+rng = MersenneTwister(7)
 hr = HistoryRecorder(max_steps=100)
-history = simulate(hr, mdp, policy1, POMDPs.initialstate(mdp, MersenneTwister(3)));
+history = simulate(hr, mdp, policy, POMDPs.initialstate(mdp, rng));
 
 carcolors = Dict{Int,Colorant}()
 carcolors[1] = colorant"red"
